@@ -1,7 +1,7 @@
 import { log } from './logger';
 import { getGame } from './ts-utils';
 
-import SheetHandler from './sheet.ts';
+import SheetHandler from './sheet-handler.ts';
 
 Hooks.once('ready', () => {
   const game = getGame();
