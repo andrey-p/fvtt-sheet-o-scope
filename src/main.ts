@@ -1,8 +1,13 @@
 import { log } from './logger';
 import { getGame } from './ts-utils';
 
+import SheetHandler from './sheet.ts';
+
 Hooks.once('ready', () => {
   const game = getGame();
+
+  const sheetHandler = new SheetHandler();
+  sheetHandler.init();
 
   // lib-wrapper is needed to patch into Foundry code -
   // bother the GM until it's installed

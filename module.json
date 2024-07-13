@@ -9,6 +9,13 @@
   "esmodules": [
     "dist/sheetoscope.js"
   ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
   "relationships": {
     "requires": [
       {
