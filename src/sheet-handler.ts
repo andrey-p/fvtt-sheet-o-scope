@@ -2,13 +2,14 @@ class SheetHandler {
   constructor() {}
 
   init() {
+    // add detach button to actor sheet
     Hooks.on(
       'getActorSheetHeaderButtons',
       (sheet: ActorSheet, buttons: Application.HeaderButton[]) => {
         const button: Application.HeaderButton = {
           label: 'SHEET-O-SCOPE.detach',
           class: 'sheet-detach',
-          icon: 'fa-arrow-up-right-from-square',
+          icon: 'fa-solid fa-arrow-up-right-from-square',
           onclick: () => {
             this.handleSheetDetach(sheet);
           }
@@ -20,9 +21,11 @@ class SheetHandler {
   }
 
   handleSheetDetach(sheet: ActorSheet) {
-    const { id, width, height } = sheet.options;
+    const { width, height } = sheet.options;
+    const id = sheet.document.id;
 
-    window.open(`/game?sheetView=${id}&width=${width}&height=${height}`,
+    window.open(
+      `/game?sheetView=${id}`,
       '_blank',
       `popup=true,width=${width},height=${height}`
     );

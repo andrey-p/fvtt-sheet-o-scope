@@ -2,12 +2,19 @@ import { log } from './logger';
 import { getGame } from './ts-utils';
 
 import SheetHandler from './sheet-handler.ts';
+import PopupRenderer from './popup-renderer.ts';
+
+const sheetHandler = new SheetHandler();
+const popupRenderer = new PopupRenderer(window.location);
 
 Hooks.once('ready', () => {
   const game = getGame();
 
-  const sheetHandler = new SheetHandler();
   sheetHandler.init();
+
+  if (popupRenderer.isSheetOScopeWindow()) {
+    popupRenderer.renderSheet();
+  }
 
   // lib-wrapper is needed to patch into Foundry code -
   // bother the GM until it's installed
