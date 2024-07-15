@@ -14,6 +14,18 @@ class PopupRenderer {
     return !!this._sheetView;
   }
 
+  hijack(): void {
+    // overwrite Foundry settings to disable canvas rendering in the popup window
+    // for a solid performance boost
+    libWrapper.register('sheet-o-scope', 'ClientSettings.prototype.get', function (fn: Function, ...args: any[]) {
+      if (args.join('.') === 'core.noCanvas') {
+        return true;
+      }
+
+      return fn(...args);
+    });
+  }
+
   renderSheet(): void {
     if (!this._sheetView) {
       return;
