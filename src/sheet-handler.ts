@@ -1,4 +1,4 @@
-import { getGame } from './ts-utils';
+import { getGame } from './utils/ts-utils';
 
 class SheetHandler {
   constructor() {}

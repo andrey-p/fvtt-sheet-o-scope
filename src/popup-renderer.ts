@@ -1,5 +1,5 @@
-import { getGame } from './ts-utils';
-import { log, warn } from './logger';
+import { getGame } from './utils/ts-utils';
+import { log, warn } from './utils/logger';
 
 type NotifyArgs = [
   string,

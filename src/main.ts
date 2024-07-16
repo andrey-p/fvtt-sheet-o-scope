@@ -1,5 +1,5 @@
-import { log } from './logger';
-import { getGame } from './ts-utils';
+import { log } from './utils/logger';
+import { getGame } from './utils/ts-utils';
 
 import SheetHandler from './sheet-handler.ts';
 import PopupRenderer from './popup-renderer.ts';
