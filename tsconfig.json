@@ -27,7 +27,8 @@
     "types": [
       "@league-of-foundry-developers/foundry-vtt-types",
       "foundry",
-      "lib-wrapper"
+      "lib-wrapper",
+      "sheet-o-scope"
     ]
   },
   "include": ["src"]

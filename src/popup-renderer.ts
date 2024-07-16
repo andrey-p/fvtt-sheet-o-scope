@@ -56,6 +56,30 @@ class PopupRenderer {
 
       return fn(...args);
     });
+
+    Hooks.on(
+      'getActorSheetHeaderButtons',
+      (_sheet: ActorSheet, buttons: Application.HeaderButton[]) => {
+        const button: Application.HeaderButton = {
+          label: 'SHEET-O-SCOPE.reattach',
+          class: 'sheet-reattach',
+          icon: 'fa-solid fa-arrow-right-from-bracket',
+          onclick: () => {
+            const message: CrossWindowMessage = {
+              sender: 'sheet-o-scope',
+              action: 'reattach',
+              sheetId: this._sheetView
+            };
+
+            window.opener?.postMessage(message, window.location.origin);
+
+            window.close();
+          }
+        };
+
+        buttons.unshift(button);
+      }
+    );
   }
 
   renderSheet(): void {
