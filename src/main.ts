@@ -1,11 +1,19 @@
 import { log } from './utils/logger';
-import { getGame } from './utils/ts-utils';
+import { getWindowMode } from './utils/url.js';
 
-import SheetHandler from './sheet-handler.ts';
+import MainWindow from './main-window.ts';
+
 import PopupRenderer from './popup-renderer.ts';
 
-const sheetHandler = new SheetHandler();
 const popupRenderer = new PopupRenderer(window.location);
+
+const windowMode = getWindowMode(window.location.toString());
+
+if (windowMode === WindowMode.Main) {
+  new MainWindow();
+} else {
+  // TODO
+}
 
 Hooks.once('init', () => {
   if (popupRenderer.isSheetOScopeWindow()) {
@@ -18,20 +26,8 @@ Hooks.once('init', () => {
 Hooks.once('ready', () => {
   log('ready! setting up sheets');
 
-  const game = getGame();
-
-  sheetHandler.init();
-
   if (popupRenderer.isSheetOScopeWindow()) {
     popupRenderer.renderSheet();
-  }
-
-  // lib-wrapper is needed to patch into Foundry code -
-  // bother the GM until it's installed and enabled
-  if (!game.modules.get('lib-wrapper')?.active && game.user?.isGM) {
-    ui.notifications?.error(
-      'Module sheet-o-scope requires the "libWrapper" module. Please install and activate it.'
-    );
   }
 });
 
