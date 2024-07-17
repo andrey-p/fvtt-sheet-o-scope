@@ -7,14 +7,18 @@ class BlockUnnecessaryUiShim implements Shim {
     // so, pop this method into local scope for the next bit
     const shouldBlockApplication = this.#shouldBlockApplication;
 
-    libWrapper.register('sheet-o-scope', 'Application.prototype.render', function (this: Application, fn: Function, ...args: any[]):Application {
-      if (shouldBlockApplication(this)) {
-        // Application.prototype.render() chains, so return the Application doing nothing
-        return this;
-      }
+    libWrapper.register(
+      'sheet-o-scope',
+      'Application.prototype.render',
+      function (this: Application, fn: Function, ...args: any[]): Application {
+        if (shouldBlockApplication(this)) {
+          // Application.prototype.render() chains, so return the Application doing nothing
+          return this;
+        }
 
-      return fn(...args);
-    });
+        return fn(...args);
+      }
+    );
   }
 
   #shouldBlockApplication(app: Application): boolean {

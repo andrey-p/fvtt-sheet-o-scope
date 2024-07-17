@@ -28,7 +28,7 @@ class PopUpWindow {
   }
 
   #setUpShims(): void {
-    shims.forEach(Shim => {
+    shims.forEach((Shim) => {
       const shim = new Shim();
       shim.run();
     });
@@ -46,7 +46,10 @@ class PopUpWindow {
     }
   }
 
-  #modifyHeaderSheetButtons(sheet: ActorSheet, buttons: Application.HeaderButton[]): void {
+  #modifyHeaderSheetButtons(
+    sheet: ActorSheet,
+    buttons: Application.HeaderButton[]
+  ): void {
     const button = new ReattachButton();
     button.onclick = () => {
       this.#reattachSheet(sheet);

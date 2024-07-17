@@ -31,7 +31,10 @@ class MainWindow extends EventTarget {
     log('Setting up changes to main window');
 
     Hooks.on('getActorSheetHeaderButtons', this.#modifySheetHeaderButtons);
-    this.#crossWindowComms.addEventListener('message', this.#onMessageReceived as EventListener);
+    this.#crossWindowComms.addEventListener(
+      'message',
+      this.#onMessageReceived as EventListener
+    );
   }
 
   #onMessageReceived(event: CrossWindowMessageEvent): void {
@@ -40,7 +43,10 @@ class MainWindow extends EventTarget {
     }
   }
 
-  #modifySheetHeaderButtons(sheet: ActorSheet, buttons: Application.HeaderButton[]): void {
+  #modifySheetHeaderButtons(
+    sheet: ActorSheet,
+    buttons: Application.HeaderButton[]
+  ): void {
     const button = new DetachButton();
     button.onclick = () => {
       this.#detachSheet(sheet);

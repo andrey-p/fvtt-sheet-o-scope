@@ -2,13 +2,17 @@
 // for a solid performance boost
 class DisableCanvasShim implements Shim {
   run() {
-    libWrapper.register('sheet-o-scope', 'ClientSettings.prototype.get', function (fn: Function, ...args: any[]) {
-      if (args.join('.') === 'core.noCanvas') {
-        return true;
-      }
+    libWrapper.register(
+      'sheet-o-scope',
+      'ClientSettings.prototype.get',
+      function (fn: Function, ...args: any[]) {
+        if (args.join('.') === 'core.noCanvas') {
+          return true;
+        }
 
-      return fn(...args);
-    });
+        return fn(...args);
+      }
+    );
   }
 }
 

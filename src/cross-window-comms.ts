@@ -30,7 +30,10 @@ class CrossWindowComms extends EventTarget {
   #verifyMessage(event: CrossWindowMessageEvent): boolean {
     const message = event.data;
 
-    if (event.origin === window.location.origin && message.sender === 'sheet-o-scope') {
+    if (
+      event.origin === window.location.origin &&
+      message.sender === 'sheet-o-scope'
+    ) {
       return true;
     }
 

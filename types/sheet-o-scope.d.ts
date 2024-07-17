@@ -1,18 +1,18 @@
 enum WindowMode {
-  Main = "MAIN",
-  PopUp = "POPUP"
-};
+  Main = 'MAIN',
+  PopUp = 'POPUP'
+}
 
 type CrossWindowMessage = {
-  sender: 'sheet-o-scope',
-  action: 'reattach',
-  sheetId: string | null
+  sender: 'sheet-o-scope';
+  action: 'reattach';
+  sheetId: string | null;
 };
 
 interface CrossWindowMessageEvent extends MessageEvent {
-  data: CrossWindowMessage
-};
+  data: CrossWindowMessage;
+}
 
 interface Shim {
-  run: () => void
-};
+  run: () => void;
+}
