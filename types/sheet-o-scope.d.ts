@@ -11,4 +11,8 @@ type CrossWindowMessage = {
 
 interface CrossWindowMessageEvent extends MessageEvent {
   data: CrossWindowMessage
-}
+};
+
+interface Shim {
+  run: () => void
+};

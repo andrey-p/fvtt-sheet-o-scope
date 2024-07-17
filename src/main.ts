@@ -1,34 +1,21 @@
-import { log } from './utils/logger';
-import { getWindowMode } from './utils/url.js';
+import { getWindowMode, getSheetId } from './utils/url.js';
 
 import MainWindow from './main-window.ts';
+import PopUpWindow from './popup-window.ts';
 
-import PopupRenderer from './popup-renderer.ts';
+const url = window.location.toString();
+const windowMode = getWindowMode(url);
+const sheetId = getSheetId(url);
 
-const popupRenderer = new PopupRenderer(window.location);
-
-const windowMode = getWindowMode(window.location.toString());
-
+// this module has two entry points, one for the main window
+// and one for the popup that this module opens
 if (windowMode === WindowMode.Main) {
+  // the main window mostly just adds a detach button to the sheets
   new MainWindow();
 } else {
-  // TODO
+  // the popup window is a bit heavier - it shows the sheet in question
+  // but also attempts to strip away lots of stuff that we don't need
+  new PopUpWindow(sheetId);
 }
-
-Hooks.once('init', () => {
-  if (popupRenderer.isSheetOScopeWindow()) {
-    log('we\'re in a sheet-o-scope popup - taking over foundry');
-
-    popupRenderer.hijack();
-  }
-});
-
-Hooks.once('ready', () => {
-  log('ready! setting up sheets');
-
-  if (popupRenderer.isSheetOScopeWindow()) {
-    popupRenderer.renderSheet();
-  }
-});
 
 CONFIG.debug.hooks = true;

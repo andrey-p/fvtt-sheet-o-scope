@@ -8,4 +8,10 @@ function getWindowMode(urlString: string): WindowMode {
   return WindowMode.Main;
 }
 
-export { getWindowMode };
+function getSheetId(urlString: string): string | null {
+  const url = new URL(urlString);
+
+  return url.searchParams.get('sheetId');
+}
+
+export { getWindowMode, getSheetId };

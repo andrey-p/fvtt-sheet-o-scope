@@ -9,7 +9,13 @@ class CrossWindowComms extends EventTarget {
     window.addEventListener('message', this.#onMessageReceived);
   }
 
-  send(message: CrossWindowMessage) {
+  send(action: string, args: object): void {
+    const message = {
+      sender: 'sheet-o-scope',
+      action,
+      ...args
+    } as CrossWindowMessage;
+
     if (this.#target) {
       this.#target.postMessage(message);
     }
