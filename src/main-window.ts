@@ -61,7 +61,7 @@ class MainWindow extends EventTarget {
     sheet.close();
 
     window.open(
-      `/game?sheetView=${id}`,
+      `/game?sheetView=1&sheetId=${id}`,
       '_blank',
       `popup=true,width=${width},height=${height}`
     );
