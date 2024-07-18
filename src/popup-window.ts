@@ -69,12 +69,23 @@ class PopUpWindow {
       return;
     }
 
-    const button = new ReattachButton();
+    // change close button so it closes the window
+    // rather than just the sheet
+    const closeButton = buttons.find(button => button.class === 'close');
 
-    button.onclick = () => {
+    if (closeButton) {
+      closeButton.onclick = () => {
+        window.close()
+      };
+    }
+
+    // add reattach button
+    const reattachButton = new ReattachButton();
+
+    reattachButton.onclick = () => {
       this.#reattachSheet(type, id);
     };
-    buttons.unshift(button);
+    buttons.unshift(reattachButton);
   }
 
   #reattachSheet(type: EntityType, id: string): void {
