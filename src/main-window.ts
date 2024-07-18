@@ -30,7 +30,10 @@ class MainWindow extends EventTarget {
 
     log('Setting up changes to main window');
 
-    Hooks.on('getActorSheetHeaderButtons', this.#modifySheetHeaderButtons.bind(this));
+    Hooks.on(
+      'getActorSheetHeaderButtons',
+      this.#modifySheetHeaderButtons.bind(this)
+    );
     this.#crossWindowComms.addEventListener(
       'message',
       this.#onMessageReceived.bind(this) as EventListener

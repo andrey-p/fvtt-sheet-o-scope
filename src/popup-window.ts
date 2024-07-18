@@ -24,7 +24,10 @@ class PopUpWindow {
 
     Hooks.once('init', this.#setUpShims.bind(this));
     Hooks.once('ready', this.#renderSheet.bind(this));
-    Hooks.on('getActorSheetHeaderButtons', this.#modifyHeaderSheetButtons.bind(this));
+    Hooks.on(
+      'getActorSheetHeaderButtons',
+      this.#modifyHeaderSheetButtons.bind(this)
+    );
   }
 
   #setUpShims(): void {
