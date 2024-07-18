@@ -5,7 +5,7 @@ type PopUpConfig = {
 
 type CrossWindowMessage = {
   sender: 'sheet-o-scope';
-  action: 'reattach';
+  action: CrossWindowAction;
   data: PopUpConfig;
 };
 

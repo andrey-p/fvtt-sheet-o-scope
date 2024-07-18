@@ -1,7 +1,7 @@
 import { log } from './utils/logger';
 import { getGame, getEntitySheet } from './utils/foundry';
 
-import EntityType from './enums/entity-type.ts';
+import { EntityType, CrossWindowAction } from './enums';
 
 import CrossWindowComms from './cross-window-comms.ts';
 import DetachButton from './ui/detach-button.ts';
@@ -54,8 +54,8 @@ class MainWindow extends EventTarget {
   #onMessageReceived(event: CrossWindowMessageEvent): void {
     const eventData = event.data;
 
-    if (eventData.action === 'reattach') {
-      this.#reattachSheet(eventData.data.type, eventData.data.id);
+    if (eventData.action === CrossWindowAction.Reattach) {
+      this.#reattachSheet(eventData.data);
     }
   }
 
@@ -84,7 +84,8 @@ class MainWindow extends EventTarget {
     );
   }
 
-  #reattachSheet(type: EntityType, id: string): void {
+  #reattachSheet(config: PopUpConfig): void {
+    const { id, type } = config;
     const sheet = getEntitySheet(id, type);
 
     if (sheet) {

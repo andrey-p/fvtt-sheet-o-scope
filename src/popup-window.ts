@@ -1,7 +1,7 @@
 import { log, warn } from './utils/logger';
 import { getEntitySheet } from './utils/foundry';
 
-import EntityType from './enums/entity-type.ts';
+import { EntityType, CrossWindowAction } from './enums';
 
 import CrossWindowComms from './cross-window-comms';
 import ReattachButton from './ui/reattach-button';
@@ -78,7 +78,7 @@ class PopUpWindow {
   }
 
   #reattachSheet(type: EntityType, id: string): void {
-    this.#crossWindowComms.send('reattach', { id, type });
+    this.#crossWindowComms.send(CrossWindowAction.Reattach, { id, type });
 
     window.close();
   }
