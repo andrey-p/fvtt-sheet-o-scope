@@ -1,7 +1,12 @@
+type PopUpConfig = {
+  id: string;
+  type: EntityType;
+};
+
 type CrossWindowMessage = {
   sender: 'sheet-o-scope';
-  action: 'reattach';
-  sheetId: string | null;
+  action: CrossWindowAction;
+  data: PopUpConfig;
 };
 
 interface CrossWindowMessageEvent extends MessageEvent {

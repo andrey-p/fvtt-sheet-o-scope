@@ -1,5 +1,7 @@
 import { log, warn } from './utils/logger';
-import { getGame } from './utils/ts-utils';
+import { getEntitySheet } from './utils/foundry';
+
+import { EntityType, CrossWindowAction } from './enums';
 
 import CrossWindowComms from './cross-window-comms';
 import ReattachButton from './ui/reattach-button';
@@ -15,18 +17,25 @@ const shims = [
 ];
 
 class PopUpWindow {
-  #sheetId: string;
   #crossWindowComms: CrossWindowComms;
 
-  constructor(sheetId: string) {
-    this.#sheetId = sheetId;
+  constructor(config: PopUpConfig) {
     this.#crossWindowComms = new CrossWindowComms(window.opener);
 
     Hooks.once('init', this.#setUpShims.bind(this));
-    Hooks.once('ready', this.#renderSheet.bind(this));
+    Hooks.once('ready', this.#renderSheet.bind(this, config));
+
     Hooks.on(
       'getActorSheetHeaderButtons',
-      this.#modifyHeaderSheetButtons.bind(this)
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Actor)
+    );
+    Hooks.on(
+      'getItemSheetHeaderButtons',
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Item)
+    );
+    Hooks.on(
+      'getJournalSheetHeaderButtons',
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
     );
   }
 
@@ -37,31 +46,39 @@ class PopUpWindow {
     });
   }
 
-  #renderSheet(): void {
-    const game = getGame();
-    const sheet = game.actors?.get(this.#sheetId)?.sheet;
+  #renderSheet(config: PopUpConfig): void {
+    const { id, type } = config;
+    const sheet = getEntitySheet(id, type);
 
     if (sheet) {
-      log(`Opening sheet for actor with ID: ${this.#sheetId}`);
+      log(`Opening sheet for ${type} with ID: ${id}`);
       sheet.render(true);
     } else {
-      warn(`Couldn't find sheet for actor with ID: ${this.#sheetId}`);
+      warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
   }
 
-  #modifyHeaderSheetButtons(
-    sheet: ActorSheet,
+  #modifySheetHeaderButtons(
+    type: EntityType,
+    sheet: DocumentSheet,
     buttons: Application.HeaderButton[]
   ): void {
+    const id = sheet.document.id;
+
+    if (!id) {
+      return;
+    }
+
     const button = new ReattachButton();
+
     button.onclick = () => {
-      this.#reattachSheet(sheet);
+      this.#reattachSheet(type, id);
     };
     buttons.unshift(button);
   }
 
-  #reattachSheet(sheet: ActorSheet): void {
-    this.#crossWindowComms.send('reattach', { sheetId: sheet.document.id });
+  #reattachSheet(type: EntityType, id: string): void {
+    this.#crossWindowComms.send(CrossWindowAction.Reattach, { id, type });
 
     window.close();
   }
