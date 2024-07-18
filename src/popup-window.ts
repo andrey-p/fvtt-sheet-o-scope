@@ -59,6 +59,8 @@ class PopUpWindow {
 
   #reattachSheet(sheet: ActorSheet): void {
     this.#crossWindowComms.send('reattach', { sheetId: sheet.document.id });
+
+    window.close();
   }
 }
 
