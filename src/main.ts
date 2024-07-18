@@ -1,38 +1,23 @@
-import { log } from './logger';
-import { getGame } from './ts-utils';
+import { getWindowMode, getSheetId } from './utils/url';
 
-import SheetHandler from './sheet-handler.ts';
-import PopupRenderer from './popup-renderer.ts';
+import WindowMode from './enums/window-mode';
 
-const sheetHandler = new SheetHandler();
-const popupRenderer = new PopupRenderer(window.location);
+import MainWindow from './main-window';
+import PopUpWindow from './popup-window';
 
-Hooks.once('init', () => {
-  if (popupRenderer.isSheetOScopeWindow()) {
-    log('we\'re in a sheet-o-scope popup - taking over foundry');
+const url = window.location.toString();
+const windowMode = getWindowMode(url);
+const sheetId = getSheetId(url);
 
-    popupRenderer.hijack();
-  }
-});
-
-Hooks.once('ready', () => {
-  log('ready! setting up sheets');
-
-  const game = getGame();
-
-  sheetHandler.init();
-
-  if (popupRenderer.isSheetOScopeWindow()) {
-    popupRenderer.renderSheet();
-  }
-
-  // lib-wrapper is needed to patch into Foundry code -
-  // bother the GM until it's installed and enabled
-  if (!game.modules.get('lib-wrapper')?.active && game.user?.isGM) {
-    ui.notifications?.error(
-      'Module sheet-o-scope requires the "libWrapper" module. Please install and activate it.'
-    );
-  }
-});
+// this module has two entry points, one for the main window
+// and one for the popup that this module opens
+if (windowMode === WindowMode.Main) {
+  // the main window mostly just adds a detach button to the sheets
+  new MainWindow();
+} else if (windowMode === WindowMode.PopUp && sheetId) {
+  // the popup window is a bit heavier - it shows the sheet in question
+  // but also attempts to strip away lots of foundry UI that we don't need
+  new PopUpWindow(sheetId);
+}
 
 CONFIG.debug.hooks = true;
