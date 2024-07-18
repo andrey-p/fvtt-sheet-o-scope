@@ -1,6 +1,8 @@
 import { log } from './utils/logger';
 import { getGame } from './utils/foundry';
 
+import EntityType from './enums/entity-type.ts';
+
 import CrossWindowComms from './cross-window-comms.ts';
 import DetachButton from './ui/detach-button.ts';
 
@@ -32,8 +34,17 @@ class MainWindow extends EventTarget {
 
     Hooks.on(
       'getActorSheetHeaderButtons',
-      this.#modifySheetHeaderButtons.bind(this)
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Actor)
     );
+    Hooks.on(
+      'getItemSheetHeaderButtons',
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Item)
+    );
+    Hooks.on(
+      'getJournalSheetHeaderButtons',
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
+    );
+
     this.#crossWindowComms.addEventListener(
       'message',
       this.#onMessageReceived.bind(this) as EventListener
@@ -47,24 +58,25 @@ class MainWindow extends EventTarget {
   }
 
   #modifySheetHeaderButtons(
-    sheet: ActorSheet,
+    type: EntityType,
+    sheet: DocumentSheet,
     buttons: Application.HeaderButton[]
   ): void {
     const button = new DetachButton();
     button.onclick = () => {
-      this.#detachSheet(sheet);
+      this.#detachSheet(type, sheet);
     };
     buttons.unshift(button);
   }
 
-  #detachSheet(sheet: ActorSheet): void {
+  #detachSheet(type: EntityType, sheet: DocumentSheet): void {
     const { width, height } = sheet.options;
     const id = sheet.document.id;
 
     sheet.close();
 
     window.open(
-      `/game?sheetView=1&sheetId=${id}`,
+      `/game?sheetView=1&id=${id}&type=${type}`,
       '_blank',
       `popup=true,width=${width},height=${height}`
     );

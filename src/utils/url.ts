@@ -1,4 +1,5 @@
 import WindowMode from '../enums/window-mode';
+import EntityType from '../enums/entity-type';
 
 function getWindowMode(urlString: string): WindowMode {
   const url = new URL(urlString);
@@ -10,10 +11,20 @@ function getWindowMode(urlString: string): WindowMode {
   return WindowMode.Main;
 }
 
-function getSheetId(urlString: string): string | null {
+function getPopUpConfig(urlString: string): PopUpConfig | null {
   const url = new URL(urlString);
+  const search = url.searchParams;
 
-  return url.searchParams.get('sheetId');
+  if (search.get('sheetView')) {
+    const id = search.get('id');
+    const type = search.get('type');
+
+    if (id && type && Object.values(EntityType).includes(type as EntityType)) {
+      return { id, type };
+    }
+  }
+
+  return null;
 }
 
-export { getWindowMode, getSheetId };
+export { getWindowMode, getPopUpConfig };

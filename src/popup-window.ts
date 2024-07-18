@@ -1,5 +1,5 @@
 import { log, warn } from './utils/logger';
-import { getGame } from './utils/foundry';
+import { getEntitySheet } from './utils/foundry';
 
 import CrossWindowComms from './cross-window-comms';
 import ReattachButton from './ui/reattach-button';
@@ -15,15 +15,13 @@ const shims = [
 ];
 
 class PopUpWindow {
-  #sheetId: string;
   #crossWindowComms: CrossWindowComms;
 
-  constructor(sheetId: string) {
-    this.#sheetId = sheetId;
+  constructor(config: PopUpConfig) {
     this.#crossWindowComms = new CrossWindowComms(window.opener);
 
     Hooks.once('init', this.#setUpShims.bind(this));
-    Hooks.once('ready', this.#renderSheet.bind(this));
+    Hooks.once('ready', this.#renderSheet.bind(this, config));
     Hooks.on(
       'getActorSheetHeaderButtons',
       this.#modifyHeaderSheetButtons.bind(this)
@@ -37,15 +35,15 @@ class PopUpWindow {
     });
   }
 
-  #renderSheet(): void {
-    const game = getGame();
-    const sheet = game.actors?.get(this.#sheetId)?.sheet;
+  #renderSheet(config :PopUpConfig): void {
+    const { id, type } = config;
+    const sheet = getEntitySheet(id, type);
 
     if (sheet) {
-      log(`Opening sheet for actor with ID: ${this.#sheetId}`);
+      log(`Opening sheet for ${type} with ID: ${id}`);
       sheet.render(true);
     } else {
-      warn(`Couldn't find sheet for actor with ID: ${this.#sheetId}`);
+      warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
   }
 
