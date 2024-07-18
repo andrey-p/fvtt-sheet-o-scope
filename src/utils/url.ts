@@ -19,7 +19,12 @@ function getPopUpConfig(urlString: string): PopUpConfig | null {
     const id = search.get('id');
     const type = search.get('type');
 
-    if (id && type && Object.values(EntityType).includes(type as EntityType)) {
+    if (
+      id &&
+      type &&
+      // apparently the best way to check an enum has a value
+      Object.values(EntityType).includes(type as EntityType)
+    ) {
       return { id, type };
     }
   }
