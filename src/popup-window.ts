@@ -1,5 +1,5 @@
 import { log, warn } from './utils/logger';
-import { getGame } from './utils/ts-utils';
+import { getGame } from './utils/foundry';
 
 import CrossWindowComms from './cross-window-comms';
 import ReattachButton from './ui/reattach-button';

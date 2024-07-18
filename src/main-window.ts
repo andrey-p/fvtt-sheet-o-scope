@@ -1,5 +1,5 @@
 import { log } from './utils/logger';
-import { getGame } from './utils/ts-utils';
+import { getGame } from './utils/foundry';
 
 import CrossWindowComms from './cross-window-comms.ts';
 import DetachButton from './ui/detach-button.ts';
