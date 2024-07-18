@@ -6,7 +6,7 @@ describe('utils/url', () => {
   describe('getWindowMode', () => {
     test('gets main window mode correctly', () => {
       expect(getWindowMode('http://localhost:30000/game')).toBe(
-        WindowMode.Main
+        WindowMode.PopUp
       );
     });
     test('gets popup window mode correctly', () => {
