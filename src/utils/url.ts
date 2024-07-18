@@ -1,3 +1,5 @@
+import WindowMode from '../enums/window-mode';
+
 function getWindowMode(urlString: string): WindowMode {
   const url = new URL(urlString);
 

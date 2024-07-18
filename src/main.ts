@@ -1,7 +1,9 @@
-import { getWindowMode, getSheetId } from './utils/url.js';
+import { getWindowMode, getSheetId } from './utils/url';
 
-import MainWindow from './main-window.ts';
-import PopUpWindow from './popup-window.ts';
+import WindowMode from './enums/window-mode';
+
+import MainWindow from './main-window';
+import PopUpWindow from './popup-window';
 
 const url = window.location.toString();
 const windowMode = getWindowMode(url);
@@ -12,9 +14,9 @@ const sheetId = getSheetId(url);
 if (windowMode === WindowMode.Main) {
   // the main window mostly just adds a detach button to the sheets
   new MainWindow();
-} else {
+} else if (windowMode === WindowMode.PopUp && sheetId) {
   // the popup window is a bit heavier - it shows the sheet in question
-  // but also attempts to strip away lots of stuff that we don't need
+  // but also attempts to strip away lots of foundry UI that we don't need
   new PopUpWindow(sheetId);
 }
 
