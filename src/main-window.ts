@@ -1,5 +1,5 @@
 import { log } from './utils/logger';
-import { getGame } from './utils/foundry';
+import { getGame, getEntitySheet } from './utils/foundry';
 
 import EntityType from './enums/entity-type.ts';
 
@@ -52,8 +52,10 @@ class MainWindow extends EventTarget {
   }
 
   #onMessageReceived(event: CrossWindowMessageEvent): void {
-    if (event.data.action === 'reattach' && event.data.sheetId) {
-      this.#reattachSheet(event.data.sheetId);
+    const eventData = event.data;
+
+    if (eventData.action === 'reattach') {
+      this.#reattachSheet(eventData.data.type, eventData.data.id);
     }
   }
 
@@ -82,9 +84,12 @@ class MainWindow extends EventTarget {
     );
   }
 
-  #reattachSheet(sheetId: string): void {
-    const game = getGame();
-    game.actors?.get(sheetId)?.sheet?.render(true);
+  #reattachSheet(type: EntityType, id: string): void {
+    const sheet = getEntitySheet(id, type);
+
+    if (sheet) {
+      sheet.render(true);
+    }
   }
 }
 

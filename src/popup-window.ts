@@ -1,6 +1,8 @@
 import { log, warn } from './utils/logger';
 import { getEntitySheet } from './utils/foundry';
 
+import EntityType from './enums/entity-type.ts';
+
 import CrossWindowComms from './cross-window-comms';
 import ReattachButton from './ui/reattach-button';
 
@@ -22,9 +24,18 @@ class PopUpWindow {
 
     Hooks.once('init', this.#setUpShims.bind(this));
     Hooks.once('ready', this.#renderSheet.bind(this, config));
+
     Hooks.on(
       'getActorSheetHeaderButtons',
-      this.#modifyHeaderSheetButtons.bind(this)
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Actor)
+    );
+    Hooks.on(
+      'getItemSheetHeaderButtons',
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Item)
+    );
+    Hooks.on(
+      'getJournalSheetHeaderButtons',
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
     );
   }
 
@@ -47,19 +58,27 @@ class PopUpWindow {
     }
   }
 
-  #modifyHeaderSheetButtons(
-    sheet: ActorSheet,
+  #modifySheetHeaderButtons(
+    type: EntityType,
+    sheet: DocumentSheet,
     buttons: Application.HeaderButton[]
   ): void {
+    const id = sheet.document.id;
+
+    if (!id) {
+      return;
+    }
+
     const button = new ReattachButton();
+
     button.onclick = () => {
-      this.#reattachSheet(sheet);
+      this.#reattachSheet(type, id);
     };
     buttons.unshift(button);
   }
 
-  #reattachSheet(sheet: ActorSheet): void {
-    this.#crossWindowComms.send('reattach', { sheetId: sheet.document.id });
+  #reattachSheet(type: EntityType, id: string): void {
+    this.#crossWindowComms.send('reattach', { id, type });
 
     window.close();
   }
