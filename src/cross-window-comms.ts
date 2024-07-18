@@ -23,7 +23,9 @@ class CrossWindowComms extends EventTarget {
 
   #onMessageReceived(event: CrossWindowMessageEvent): void {
     if (this.#verifyMessage(event)) {
-      this.dispatchEvent(event);
+      // cannot re-dispatch the same event, browser complains
+      const newEvent = new MessageEvent('message', { data: event.data });
+      this.dispatchEvent(newEvent);
     }
   }
 
