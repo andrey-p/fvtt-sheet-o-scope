@@ -6,7 +6,7 @@ class CrossWindowComms extends EventTarget {
 
     this.#target = target;
 
-    window.addEventListener('message', this.#onMessageReceived);
+    window.addEventListener('message', this.#onMessageReceived.bind(this));
   }
 
   send(action: string, args: object): void {

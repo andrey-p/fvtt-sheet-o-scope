@@ -22,9 +22,9 @@ class PopUpWindow {
     this.#sheetId = sheetId;
     this.#crossWindowComms = new CrossWindowComms(window.opener);
 
-    Hooks.once('init', this.#setUpShims);
-    Hooks.once('ready', this.#renderSheet);
-    Hooks.on('getActorSheetHeaderButtons', this.#modifyHeaderSheetButtons);
+    Hooks.once('init', this.#setUpShims.bind(this));
+    Hooks.once('ready', this.#renderSheet.bind(this));
+    Hooks.on('getActorSheetHeaderButtons', this.#modifyHeaderSheetButtons.bind(this));
   }
 
   #setUpShims(): void {

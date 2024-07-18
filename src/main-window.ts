@@ -11,7 +11,7 @@ class MainWindow extends EventTarget {
     super();
 
     this.#crossWindowComms = new CrossWindowComms();
-    Hooks.once('ready', this.#initialize);
+    Hooks.once('ready', this.#initialize.bind(this));
   }
 
   #initialize(): void {
@@ -30,10 +30,10 @@ class MainWindow extends EventTarget {
 
     log('Setting up changes to main window');
 
-    Hooks.on('getActorSheetHeaderButtons', this.#modifySheetHeaderButtons);
+    Hooks.on('getActorSheetHeaderButtons', this.#modifySheetHeaderButtons.bind(this));
     this.#crossWindowComms.addEventListener(
       'message',
-      this.#onMessageReceived as EventListener
+      this.#onMessageReceived.bind(this) as EventListener
     );
   }
 
