@@ -8,7 +8,10 @@ export function getGame() {
   return game as Game;
 }
 
-export function getEntitySheet(id: string, type: EntityType): FormApplication | null | undefined {
+export function getEntitySheet(
+  id: string,
+  type: EntityType
+): FormApplication | null | undefined {
   const game = getGame();
 
   if (type === EntityType.Actor) {

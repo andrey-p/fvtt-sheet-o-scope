@@ -18,7 +18,9 @@ describe('utils/url', () => {
 
   describe('getPopUpConfig', () => {
     test('gets correctly formed popup config', () => {
-      const result = getPopUpConfig('http://localhost:30000/game?sheetView=1&id=abcde&type=actor');
+      const result = getPopUpConfig(
+        'http://localhost:30000/game?sheetView=1&id=abcde&type=actor'
+      );
 
       expect(result).toMatchObject({ id: 'abcde', type: 'actor' });
     });

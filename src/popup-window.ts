@@ -46,7 +46,7 @@ class PopUpWindow {
     });
   }
 
-  #renderSheet(config :PopUpConfig): void {
+  #renderSheet(config: PopUpConfig): void {
     const { id, type } = config;
     const sheet = getEntitySheet(id, type);
 
