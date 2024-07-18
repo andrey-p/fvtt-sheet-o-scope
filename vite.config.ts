@@ -10,6 +10,9 @@ export default defineConfig({
       fileName: 'sheetoscope'
     }
   },
+  test: {
+    include: ['./tests/**/*.ts']
+  },
   plugins: [
     checker({
       typescript: true

@@ -7,7 +7,9 @@
     "dev": "tsc && vite build --watch",
     "build": "tsc && vite build",
     "foundry-dev": "fvtt launch --world local-dev",
-    "lint": "prettier --write src types lang"
+    "lint": "prettier --write src types lang tests",
+    "test": "vitest --watch=false",
+    "ci": "tsc && prettier --check src types lang tests && npm test"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^1.0.3",
@@ -15,7 +17,8 @@
     "prettier": "^3.3.3",
     "typescript": "^5.2.2",
     "vite": "^5.3.1",
-    "vite-plugin-checker": "^0.7.1"
+    "vite-plugin-checker": "^0.7.1",
+    "vitest": "^2.0.3"
   },
   "prettier": {
     "singleQuote": true,
