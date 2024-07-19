@@ -39,8 +39,7 @@ class PopUpWindow {
     );
 
     // add a CSS hook to the body for all sorts of minor CSS tweaks
-    document.querySelector('body')?.classList
-      .add('sheet-o-scope-popup');
+    document.querySelector('body')?.classList.add('sheet-o-scope-popup');
   }
 
   #setUpShims(): void {
@@ -56,7 +55,10 @@ class PopUpWindow {
 
     if (sheet) {
       log(`Opening sheet for ${type} with ID: ${id}`);
-      sheet.render(true, { minimizable: false, resizable: false });
+      sheet.render(true, {
+        minimizable: false,
+        resizable: false
+      });
     } else {
       warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
@@ -88,11 +90,11 @@ class PopUpWindow {
 
     // change close button so it closes the window
     // rather than just the sheet
-    const closeButton = buttons.find(button => button.class === 'close');
+    const closeButton = buttons.find((button) => button.class === 'close');
 
     if (closeButton) {
       closeButton.onclick = () => {
-        window.close()
+        window.close();
       };
     }
 
