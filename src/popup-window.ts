@@ -37,6 +37,10 @@ class PopUpWindow {
       'getJournalSheetHeaderButtons',
       this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
     );
+
+    // add a CSS hook to the body for all sorts of minor CSS tweaks
+    document.querySelector('body')?.classList
+      .add('sheet-o-scope-popup');
   }
 
   #setUpShims(): void {

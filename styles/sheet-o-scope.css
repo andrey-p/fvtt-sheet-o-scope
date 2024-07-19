@@ -1,0 +1,14 @@
+.sheet-o-scope-popup {
+  & .window-app {
+
+    /* hide resize handle on popup */
+    & .window-resizable-handle {
+      display: none;
+    }
+
+    /* disable transparency on header */
+    & .window-header {
+      background-color: #111;
+    }
+  }
+}
