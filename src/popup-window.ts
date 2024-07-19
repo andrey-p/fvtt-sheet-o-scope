@@ -60,6 +60,19 @@ class PopUpWindow {
     } else {
       warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
+
+    window.addEventListener('resize', this.#onWindowResize.bind(this, sheet));
+  }
+
+  #onWindowResize(sheet: FormApplication | null | undefined): void {
+    if (!sheet) {
+      return;
+    }
+
+    sheet.setPosition({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
   }
 
   #modifySheetHeaderButtons(
