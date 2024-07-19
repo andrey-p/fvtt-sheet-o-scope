@@ -18,6 +18,7 @@
     "typescript": "^5.2.2",
     "vite": "^5.3.1",
     "vite-plugin-checker": "^0.7.1",
+    "vite-plugin-static-copy": "^1.0.6",
     "vitest": "^2.0.3"
   },
   "prettier": {

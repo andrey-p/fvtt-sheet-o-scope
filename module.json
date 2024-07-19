@@ -9,6 +9,9 @@
   "esmodules": [
     "dist/sheet-o-scope.js"
   ],
+  "styles": [
+    "dist/sheet-o-scope.css"
+  ],
   "languages": [
     {
       "lang": "en",
