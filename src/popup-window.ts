@@ -37,6 +37,9 @@ class PopUpWindow {
       'getJournalSheetHeaderButtons',
       this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
     );
+
+    // add a CSS hook to the body for all sorts of minor CSS tweaks
+    document.querySelector('body')?.classList.add('sheet-o-scope-popup');
   }
 
   #setUpShims(): void {
@@ -52,10 +55,26 @@ class PopUpWindow {
 
     if (sheet) {
       log(`Opening sheet for ${type} with ID: ${id}`);
-      sheet.render(true);
+      sheet.render(true, {
+        minimizable: false,
+        resizable: false
+      });
     } else {
       warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
+
+    window.addEventListener('resize', this.#onWindowResize.bind(this, sheet));
+  }
+
+  #onWindowResize(sheet: FormApplication | null | undefined): void {
+    if (!sheet) {
+      return;
+    }
+
+    sheet.setPosition({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
   }
 
   #modifySheetHeaderButtons(
@@ -69,12 +88,23 @@ class PopUpWindow {
       return;
     }
 
-    const button = new ReattachButton();
+    // change close button so it closes the window
+    // rather than just the sheet
+    const closeButton = buttons.find((button) => button.class === 'close');
 
-    button.onclick = () => {
+    if (closeButton) {
+      closeButton.onclick = () => {
+        window.close();
+      };
+    }
+
+    // add reattach button
+    const reattachButton = new ReattachButton();
+
+    reattachButton.onclick = () => {
       this.#reattachSheet(type, id);
     };
-    buttons.unshift(button);
+    buttons.unshift(reattachButton);
   }
 
   #reattachSheet(type: EntityType, id: string): void {
