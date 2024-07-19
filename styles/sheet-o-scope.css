@@ -11,4 +11,12 @@
       background-color: #111;
     }
   }
+
+  /*
+   * has an unsightly border before it renders
+   * (which, in our popup window, it never does)
+   */
+  #sidebar {
+    display: none;
+  }
 }
