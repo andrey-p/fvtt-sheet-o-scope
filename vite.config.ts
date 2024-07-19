@@ -7,7 +7,7 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
       name: 'sheet-o-scope',
-      fileName: 'sheetoscope'
+      fileName: 'sheet-o-scope'
     }
   },
   test: {

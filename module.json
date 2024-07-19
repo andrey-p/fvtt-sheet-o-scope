@@ -7,7 +7,7 @@
     { "name": "sdf" }
   ],
   "esmodules": [
-    "dist/sheetoscope.js"
+    "dist/sheet-o-scope.js"
   ],
   "languages": [
     {
