@@ -2,8 +2,9 @@
 .sheet-o-scope-popup {
   & .window-app {
 
-    /* disable transparency on header */
+    /* disable transparency and draggable cursor on header */
     & .window-header {
+      cursor: auto;
       background-color: #111;
     }
   }
