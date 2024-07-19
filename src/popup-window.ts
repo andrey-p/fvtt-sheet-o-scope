@@ -56,7 +56,7 @@ class PopUpWindow {
 
     if (sheet) {
       log(`Opening sheet for ${type} with ID: ${id}`);
-      sheet.render(true);
+      sheet.render(true, { resizable: false });
     } else {
       warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
