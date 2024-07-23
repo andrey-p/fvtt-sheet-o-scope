@@ -19,5 +19,3 @@ if (windowMode === WindowMode.Main) {
   // but also attempts to strip away lots of foundry UI that we don't need
   new PopUpWindow(popUpConfig);
 }
-
-CONFIG.debug.hooks = true;
