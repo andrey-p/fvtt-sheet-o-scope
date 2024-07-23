@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 type PopUpConfig = {
   id: string;
   type: EntityType;
