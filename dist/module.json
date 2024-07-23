@@ -7,10 +7,10 @@
     { "name": "sdf" }
   ],
   "esmodules": [
-    "dist/sheet-o-scope.js"
+    "./sheet-o-scope.js"
   ],
   "styles": [
-    "dist/sheet-o-scope.css"
+    "./sheet-o-scope.css"
   ],
   "languages": [
     {

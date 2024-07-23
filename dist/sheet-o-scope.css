@@ -1,0 +1,19 @@
+/* small tweaks for the popup window */
+.sheet-o-scope-popup {
+  & .window-app {
+
+    /* disable transparency and draggable cursor on header */
+    & .window-header {
+      cursor: auto;
+      background-color: #111;
+    }
+  }
+
+  /*
+   * has an unsightly border before it renders
+   * (which, in our popup window, it never does)
+   */
+  #sidebar {
+    display: none;
+  }
+}
