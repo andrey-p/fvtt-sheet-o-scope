@@ -44,6 +44,19 @@ class PopUpWindow {
       this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
     );
 
+    Hooks.on(
+      'renderActorSheet',
+      this.#modifySheet.bind(this)
+    );
+    Hooks.on(
+      'renderItemSheet',
+      this.#modifySheet.bind(this)
+    );
+    Hooks.on(
+      'renderJournalSheet',
+      this.#modifySheet.bind(this)
+    );
+
     // add a CSS hook to the body for all sorts of minor CSS tweaks
     document.querySelector('body')?.classList.add('sheet-o-scope-popup');
   }
@@ -121,6 +134,12 @@ class PopUpWindow {
         this.#reattachSheet(type, id);
       };
       buttons.unshift(reattachButton);
+    }
+  }
+
+  #modifySheet(_sheet: DocumentSheet, elems: Element[]): void {
+    if (this.#isActuallyPopup) {
+      elems[0].classList.add('popup-sheet');
     }
   }
 
