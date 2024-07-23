@@ -19,7 +19,13 @@ const shims = [
 class PopUpWindow {
   #crossWindowComms: CrossWindowComms;
 
+  #isActuallyPopup: boolean;
+
   constructor(config: PopUpConfig) {
+    // it's possible that this was opened from Foundry running in Electron
+    // in which case a few of the special tweaks we want to do are unnecessary
+    this.#isActuallyPopup = !!window.opener && window.name === 'sheet-o-scope-popup';
+
     this.#crossWindowComms = new CrossWindowComms(window.opener);
 
     Hooks.once('init', this.#setUpShims.bind(this));
@@ -54,16 +60,25 @@ class PopUpWindow {
     const sheet = getEntitySheet(id, type);
 
     if (sheet) {
+      const options: any = {};
+
+      // if this view is actually showing in a popup,
+      // resizing it is done via the window
+      if (this.#isActuallyPopup) {
+        options.resizable = false;
+      }
+
+      // in e.g. electron, this view will show in a new browser window
+      // where being able to minimize it is still irrelevant
+      options.minimizable = false;
+
       log(`Opening sheet for ${type} with ID: ${id}`);
-      sheet.render(true, {
-        minimizable: false,
-        resizable: false
-      });
+      sheet.render(true, options);
+
+      window.addEventListener('resize', this.#onWindowResize.bind(this, sheet));
     } else {
       warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
-
-    window.addEventListener('resize', this.#onWindowResize.bind(this, sheet));
   }
 
   #onWindowResize(sheet: FormApplication | null | undefined): void {
@@ -98,13 +113,15 @@ class PopUpWindow {
       };
     }
 
-    // add reattach button
-    const reattachButton = new ReattachButton();
+    // add reattach button only makes sense if there's an opener to send the button back to
+    if (this.#isActuallyPopup) {
+      const reattachButton = new ReattachButton();
 
-    reattachButton.onclick = () => {
-      this.#reattachSheet(type, id);
-    };
-    buttons.unshift(reattachButton);
+      reattachButton.onclick = () => {
+        this.#reattachSheet(type, id);
+      };
+      buttons.unshift(reattachButton);
+    }
   }
 
   #reattachSheet(type: EntityType, id: string): void {
