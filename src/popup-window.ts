@@ -24,7 +24,8 @@ class PopUpWindow {
   constructor(config: PopUpConfig) {
     // it's possible that this was opened from Foundry running in Electron
     // in which case a few of the special tweaks we want to do are unnecessary
-    this.#isActuallyPopup = !!window.opener && window.name === 'sheet-o-scope-popup';
+    this.#isActuallyPopup =
+      !!window.opener && window.name === 'sheet-o-scope-popup';
 
     this.#crossWindowComms = new CrossWindowComms(window.opener);
 
@@ -44,18 +45,9 @@ class PopUpWindow {
       this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
     );
 
-    Hooks.on(
-      'renderActorSheet',
-      this.#modifySheet.bind(this)
-    );
-    Hooks.on(
-      'renderItemSheet',
-      this.#modifySheet.bind(this)
-    );
-    Hooks.on(
-      'renderJournalSheet',
-      this.#modifySheet.bind(this)
-    );
+    Hooks.on('renderActorSheet', this.#modifySheet.bind(this));
+    Hooks.on('renderItemSheet', this.#modifySheet.bind(this));
+    Hooks.on('renderJournalSheet', this.#modifySheet.bind(this));
 
     // add a CSS hook to the body for all sorts of minor CSS tweaks
     document.querySelector('body')?.classList.add('sheet-o-scope-popup');
