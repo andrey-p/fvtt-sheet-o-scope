@@ -25,7 +25,7 @@ class PopUpWindow {
     // it's possible that this was opened from Foundry running in Electron
     // in which case a few of the special tweaks we want to do are unnecessary
     this.#isActuallyPopup =
-      !!window.opener && window.name === 'sheet-o-scope-popup';
+      !!window.opener && window.name.includes('sheet-o-scope');
 
     this.#crossWindowComms = new CrossWindowComms(window.opener);
 
