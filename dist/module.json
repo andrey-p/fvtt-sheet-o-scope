@@ -3,12 +3,9 @@
   "title": "Sheet-o-scope",
   "description": "sdfsdf",
   "version": "0.1.0",
-  "authors": [
-    { "name": "sdf" }
-  ],
-  "esmodules": [
-    "dist/sheetoscope.js"
-  ],
+  "authors": [{ "name": "sdf" }],
+  "esmodules": ["./sheet-o-scope.js"],
+  "styles": ["./sheet-o-scope.css"],
   "languages": [
     {
       "lang": "en",

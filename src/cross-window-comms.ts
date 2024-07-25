@@ -1,3 +1,5 @@
+import { CrossWindowAction } from './enums';
+
 class CrossWindowComms extends EventTarget {
   #target: Window | null;
 
@@ -9,12 +11,12 @@ class CrossWindowComms extends EventTarget {
     window.addEventListener('message', this.#onMessageReceived.bind(this));
   }
 
-  send(action: string, args: object): void {
+  send(action: CrossWindowAction, data: PopUpConfig): void {
     const message = {
       sender: 'sheet-o-scope',
       action,
-      ...args
-    } as CrossWindowMessage;
+      data
+    };
 
     if (this.#target) {
       this.#target.postMessage(message);

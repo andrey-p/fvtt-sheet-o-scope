@@ -1,0 +1,32 @@
+{
+  "id": "sheet-o-scope",
+  "title": "Sheet-o-scope",
+  "description": "sdfsdf",
+  "version": "0.1.0",
+  "authors": [{ "name": "sdf" }],
+  "esmodules": ["./sheet-o-scope.js"],
+  "styles": ["./sheet-o-scope.css"],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "relationships": {
+    "requires": [
+      {
+        "id": "lib-wrapper",
+        "type": "module",
+        "compatibility": {
+          "minimum": "1.0.0.0",
+          "verified": "1.12.14.0"
+        }
+      }
+    ]
+  },
+  "compatibility": {
+    "minimum": "12",
+    "verified": "12"
+  }
+}

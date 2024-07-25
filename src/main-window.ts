@@ -1,5 +1,7 @@
 import { log } from './utils/logger';
-import { getGame } from './utils/ts-utils';
+import { getGame, getEntitySheet } from './utils/foundry';
+
+import { EntityType, CrossWindowAction } from './enums';
 
 import CrossWindowComms from './cross-window-comms.ts';
 import DetachButton from './ui/detach-button.ts';
@@ -32,8 +34,17 @@ class MainWindow extends EventTarget {
 
     Hooks.on(
       'getActorSheetHeaderButtons',
-      this.#modifySheetHeaderButtons.bind(this)
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Actor)
     );
+    Hooks.on(
+      'getItemSheetHeaderButtons',
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Item)
+    );
+    Hooks.on(
+      'getJournalSheetHeaderButtons',
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
+    );
+
     this.#crossWindowComms.addEventListener(
       'message',
       this.#onMessageReceived.bind(this) as EventListener
@@ -41,38 +52,45 @@ class MainWindow extends EventTarget {
   }
 
   #onMessageReceived(event: CrossWindowMessageEvent): void {
-    if (event.data.action === 'reattach' && event.data.sheetId) {
-      this.#reattachSheet(event.data.sheetId);
+    const eventData = event.data;
+
+    if (eventData.action === CrossWindowAction.Reattach) {
+      this.#reattachSheet(eventData.data);
     }
   }
 
   #modifySheetHeaderButtons(
-    sheet: ActorSheet,
+    type: EntityType,
+    sheet: DocumentSheet,
     buttons: Application.HeaderButton[]
   ): void {
     const button = new DetachButton();
     button.onclick = () => {
-      this.#detachSheet(sheet);
+      this.#detachSheet(type, sheet);
     };
     buttons.unshift(button);
   }
 
-  #detachSheet(sheet: ActorSheet): void {
+  #detachSheet(type: EntityType, sheet: DocumentSheet): void {
     const { width, height } = sheet.options;
     const id = sheet.document.id;
 
     sheet.close();
 
     window.open(
-      `/game?sheetView=1&sheetId=${id}`,
-      '_blank',
+      `/game?sheetView=1&id=${id}&type=${type}`,
+      `sheet-o-scope-popup-${id}`,
       `popup=true,width=${width},height=${height}`
     );
   }
 
-  #reattachSheet(sheetId: string): void {
-    const game = getGame();
-    game.actors?.get(sheetId)?.sheet?.render(true);
+  #reattachSheet(config: PopUpConfig): void {
+    const { id, type } = config;
+    const sheet = getEntitySheet(id, type);
+
+    if (sheet) {
+      sheet.render(true);
+    }
   }
 }
 

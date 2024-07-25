@@ -1,5 +1,7 @@
 import { log, warn } from './utils/logger';
-import { getGame } from './utils/ts-utils';
+import { getEntitySheet } from './utils/foundry';
+
+import { EntityType, CrossWindowAction } from './enums';
 
 import CrossWindowComms from './cross-window-comms';
 import ReattachButton from './ui/reattach-button';
@@ -15,19 +17,41 @@ const shims = [
 ];
 
 class PopUpWindow {
-  #sheetId: string;
   #crossWindowComms: CrossWindowComms;
 
-  constructor(sheetId: string) {
-    this.#sheetId = sheetId;
+  #isActuallyPopup: boolean;
+
+  constructor(config: PopUpConfig) {
+    // it's possible that this was opened from Foundry running in Electron
+    // in which case it's opened as a large-size browser tab with full browser chrome, not a popup window
+    // and a few of the special tweaks we want to do are unnecessary
+    this.#isActuallyPopup =
+      !!window.opener && window.name.includes('sheet-o-scope');
+
     this.#crossWindowComms = new CrossWindowComms(window.opener);
 
     Hooks.once('init', this.#setUpShims.bind(this));
-    Hooks.once('ready', this.#renderSheet.bind(this));
+    Hooks.once('ready', this.#renderSheet.bind(this, config));
+
     Hooks.on(
       'getActorSheetHeaderButtons',
-      this.#modifyHeaderSheetButtons.bind(this)
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Actor)
     );
+    Hooks.on(
+      'getItemSheetHeaderButtons',
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Item)
+    );
+    Hooks.on(
+      'getJournalSheetHeaderButtons',
+      this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
+    );
+
+    Hooks.on('renderActorSheet', this.#modifySheet.bind(this));
+    Hooks.on('renderItemSheet', this.#modifySheet.bind(this));
+    Hooks.on('renderJournalSheet', this.#modifySheet.bind(this));
+
+    // add a CSS hook to the body for all sorts of minor CSS tweaks
+    document.querySelector('body')?.classList.add('sheet-o-scope-popup');
   }
 
   #setUpShims(): void {
@@ -37,31 +61,86 @@ class PopUpWindow {
     });
   }
 
-  #renderSheet(): void {
-    const game = getGame();
-    const sheet = game.actors?.get(this.#sheetId)?.sheet;
+  #renderSheet(config: PopUpConfig): void {
+    const { id, type } = config;
+    const sheet = getEntitySheet(id, type);
 
     if (sheet) {
-      log(`Opening sheet for actor with ID: ${this.#sheetId}`);
-      sheet.render(true);
+      const options: any = {};
+
+      // if this view is actually showing in a popup,
+      // resizing it is done via the window
+      if (this.#isActuallyPopup) {
+        options.resizable = false;
+
+        window.addEventListener(
+          'resize',
+          this.#onWindowResize.bind(this, sheet)
+        );
+      }
+
+      // in e.g. electron, this view will show in a new browser window
+      // where being able to minimize it is still irrelevant
+      options.minimizable = false;
+
+      log(`Opening sheet for ${type} with ID: ${id}`);
+      sheet.render(true, options);
     } else {
-      warn(`Couldn't find sheet for actor with ID: ${this.#sheetId}`);
+      warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
   }
 
-  #modifyHeaderSheetButtons(
-    sheet: ActorSheet,
-    buttons: Application.HeaderButton[]
-  ): void {
-    const button = new ReattachButton();
-    button.onclick = () => {
-      this.#reattachSheet(sheet);
-    };
-    buttons.unshift(button);
+  #onWindowResize(sheet: FormApplication | null | undefined): void {
+    if (!sheet) {
+      return;
+    }
+
+    sheet.setPosition({
+      width: window.innerWidth,
+      height: window.innerHeight
+    });
   }
 
-  #reattachSheet(sheet: ActorSheet): void {
-    this.#crossWindowComms.send('reattach', { sheetId: sheet.document.id });
+  #modifySheetHeaderButtons(
+    type: EntityType,
+    sheet: DocumentSheet,
+    buttons: Application.HeaderButton[]
+  ): void {
+    const id = sheet.document.id;
+
+    if (!id) {
+      return;
+    }
+
+    // change close button so it closes the window
+    // rather than just the sheet
+    const closeButton = buttons.find((button) => button.class === 'close');
+
+    if (closeButton) {
+      closeButton.onclick = () => {
+        window.close();
+      };
+    }
+
+    // add reattach button only makes sense if there's an opener to send the button back to
+    if (this.#isActuallyPopup) {
+      const reattachButton = new ReattachButton();
+
+      reattachButton.onclick = () => {
+        this.#reattachSheet(type, id);
+      };
+      buttons.unshift(reattachButton);
+    }
+  }
+
+  #modifySheet(_sheet: DocumentSheet, elems: Element[]): void {
+    if (this.#isActuallyPopup) {
+      elems[0].classList.add('popup-sheet');
+    }
+  }
+
+  #reattachSheet(type: EntityType, id: string): void {
+    this.#crossWindowComms.send(CrossWindowAction.Reattach, { id, type });
 
     window.close();
   }
