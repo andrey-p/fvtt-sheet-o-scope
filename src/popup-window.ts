@@ -23,7 +23,8 @@ class PopUpWindow {
 
   constructor(config: PopUpConfig) {
     // it's possible that this was opened from Foundry running in Electron
-    // in which case a few of the special tweaks we want to do are unnecessary
+    // in which case it's opened as a large-size browser tab with full browser chrome, not a popup window
+    // and a few of the special tweaks we want to do are unnecessary
     this.#isActuallyPopup =
       !!window.opener && window.name.includes('sheet-o-scope');
 
