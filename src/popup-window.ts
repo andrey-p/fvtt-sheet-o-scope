@@ -72,6 +72,8 @@ class PopUpWindow {
       // resizing it is done via the window
       if (this.#isActuallyPopup) {
         options.resizable = false;
+
+        window.addEventListener('resize', this.#onWindowResize.bind(this, sheet));
       }
 
       // in e.g. electron, this view will show in a new browser window
@@ -81,7 +83,6 @@ class PopUpWindow {
       log(`Opening sheet for ${type} with ID: ${id}`);
       sheet.render(true, options);
 
-      window.addEventListener('resize', this.#onWindowResize.bind(this, sheet));
     } else {
       warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
