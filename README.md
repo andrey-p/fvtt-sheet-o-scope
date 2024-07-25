@@ -1,7 +1,7 @@
 Sheet-o-scope
 ====
 
-This is a Foundry VTT module for looking at Foundry sheets in a window other than the main one.
+This is a [Foundry VTT](https://foundryvtt.com/) module for looking at Foundry sheets in a window other than the main one.
 
 Currently, it allows for a sheet to be viewed in a popup, similar to the excellent PopOut! module.
 
