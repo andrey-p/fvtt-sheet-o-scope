@@ -25,14 +25,14 @@ Cons:
 
 If PopOut! works for your specific use case, you may want to consider sticking with it.
 
-In the way of a more technical explanation: PopOut! works by duplicating the DOM of a sheet in a separate popup window, which allows it to only copy what it needs. However, it cannot copy things outside of the DOM, which makes things break.
+In the way of a more technical explanation: PopOut! works by duplicating the DOM of a sheet in a separate popup window, which allows it to only copy what it needs. However, it cannot copy things outside of the sheet's DOM, which makes things break.
 
 Sheet-o-scope works by opening a second instance of Foundry VTT in a popup, then attempting to pare it down as much as possible (e.g. by forcing `noCanvas` mode). Sheet-o-scope's maximalist approach is what makes it support more use cases, and makes it heftier at the same time.
 
 Caveats for users running Foundry locally via the Electron app
 ---
 
-If you're running Foundry on your own PC, you're likely running a server using Electron. This comes with a whole host of issues, at least as far as Sheet-o-scope is concerned: it means that you'll need to log in twice (once as a GM in the Electron app, once in your browser to view your sheets).
+If you're running Foundry on your own PC, you're likely running your server using Electron. This comes with a whole host of issues, at least as far as Sheet-o-scope is concerned: it means that you'll need to log in twice (once as a GM in the Electron app, once in your browser to view your sheets).
 
 Foundry is built around a user only ever logging in once at a time - if you've logged in the Electron app, your name will be greyed out when it comes to log in via the browser.
 
