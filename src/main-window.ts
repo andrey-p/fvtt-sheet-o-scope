@@ -79,7 +79,7 @@ class MainWindow extends EventTarget {
 
     window.open(
       `/game?sheetView=1&id=${id}&type=${type}`,
-      '_blank',
+      `sheet-o-scope-popup-${id}`,
       `popup=true,width=${width},height=${height}`
     );
   }

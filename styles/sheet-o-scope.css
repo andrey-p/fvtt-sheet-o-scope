@@ -1,6 +1,6 @@
 /* small tweaks for the popup window */
 .sheet-o-scope-popup {
-  & .window-app {
+  & .window-app.popup-sheet {
 
     /* disable transparency and draggable cursor on header */
     & .window-header {

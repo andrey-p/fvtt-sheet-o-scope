@@ -19,7 +19,15 @@ const shims = [
 class PopUpWindow {
   #crossWindowComms: CrossWindowComms;
 
+  #isActuallyPopup: boolean;
+
   constructor(config: PopUpConfig) {
+    // it's possible that this was opened from Foundry running in Electron
+    // in which case it's opened as a large-size browser tab with full browser chrome, not a popup window
+    // and a few of the special tweaks we want to do are unnecessary
+    this.#isActuallyPopup =
+      !!window.opener && window.name.includes('sheet-o-scope');
+
     this.#crossWindowComms = new CrossWindowComms(window.opener);
 
     Hooks.once('init', this.#setUpShims.bind(this));
@@ -38,6 +46,10 @@ class PopUpWindow {
       this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
     );
 
+    Hooks.on('renderActorSheet', this.#modifySheet.bind(this));
+    Hooks.on('renderItemSheet', this.#modifySheet.bind(this));
+    Hooks.on('renderJournalSheet', this.#modifySheet.bind(this));
+
     // add a CSS hook to the body for all sorts of minor CSS tweaks
     document.querySelector('body')?.classList.add('sheet-o-scope-popup');
   }
@@ -54,16 +66,28 @@ class PopUpWindow {
     const sheet = getEntitySheet(id, type);
 
     if (sheet) {
+      const options: any = {};
+
+      // if this view is actually showing in a popup,
+      // resizing it is done via the window
+      if (this.#isActuallyPopup) {
+        options.resizable = false;
+
+        window.addEventListener(
+          'resize',
+          this.#onWindowResize.bind(this, sheet)
+        );
+      }
+
+      // in e.g. electron, this view will show in a new browser window
+      // where being able to minimize it is still irrelevant
+      options.minimizable = false;
+
       log(`Opening sheet for ${type} with ID: ${id}`);
-      sheet.render(true, {
-        minimizable: false,
-        resizable: false
-      });
+      sheet.render(true, options);
     } else {
       warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
-
-    window.addEventListener('resize', this.#onWindowResize.bind(this, sheet));
   }
 
   #onWindowResize(sheet: FormApplication | null | undefined): void {
@@ -98,13 +122,21 @@ class PopUpWindow {
       };
     }
 
-    // add reattach button
-    const reattachButton = new ReattachButton();
+    // add reattach button only makes sense if there's an opener to send the button back to
+    if (this.#isActuallyPopup) {
+      const reattachButton = new ReattachButton();
 
-    reattachButton.onclick = () => {
-      this.#reattachSheet(type, id);
-    };
-    buttons.unshift(reattachButton);
+      reattachButton.onclick = () => {
+        this.#reattachSheet(type, id);
+      };
+      buttons.unshift(reattachButton);
+    }
+  }
+
+  #modifySheet(_sheet: DocumentSheet, elems: Element[]): void {
+    if (this.#isActuallyPopup) {
+      elems[0].classList.add('popup-sheet');
+    }
   }
 
   #reattachSheet(type: EntityType, id: string): void {
