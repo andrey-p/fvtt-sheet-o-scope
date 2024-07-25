@@ -45,7 +45,7 @@ So, to work around these, this should work:
 3. Using your browser, open http://localhost:30000 (this URL might be vary) and login as your new user
 4. Detaching your sheets using Sheet-o-scope should now work!
 
-This is obviously not a great experience. Ideas to improve these are tracked via issue #7 (https://github.com/andrey-p/fvtt-sheet-o-scope/issues/7).
+This is obviously not a great experience. Ideas to improve these are tracked via issue https://github.com/andrey-p/fvtt-sheet-o-scope/issues/7.
 
 Setting up for dev
 ---
