@@ -7,6 +7,21 @@ Currently, it allows for a sheet to be viewed in a popup, similar to the excelle
 
 A longer term goal is for it to be a generic way of viewing sheets on any secondary window (e.g. in-person games where the scene is viewed on a large monitor, and players can look at their own character sheets on mobile devices).
 
+Installing
+---
+
+### Latest release version
+
+This module is still under heavy development and so doesn't have an official release yet. Watch this space!
+
+### Latest development version
+
+Use this manifest.json URL:
+
+```
+https://raw.githubusercontent.com/andrey-p/fvtt-sheet-o-scope/main/dist/module.json
+```
+
 Sheet-o-scope vs PopOut!
 ---
 
