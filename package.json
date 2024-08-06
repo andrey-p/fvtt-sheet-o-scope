@@ -4,9 +4,9 @@
   "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "dev": "tsc && vite build --watch --mode development",
-    "zip": "cd dist && rm -f ./sheet-o-scope.zip && zip -r ./sheet-o-scope.zip ./*",
-    "build": "tsc && vite build --mode production && npm run zip",
+    "dev": "tsc && vite build --watch --mode local",
+    "build": "tsc && vite build --mode dev-release",
+    "build-versioned": "tsc && vite build --mode versioned-release",
     "foundry-dev": "fvtt launch --world local-dev",
     "lint": "prettier --write src types static tests",
     "test": "vitest --watch=false",
@@ -20,6 +20,7 @@
     "vite": "^5.3.1",
     "vite-plugin-checker": "^0.7.1",
     "vite-plugin-static-copy": "^1.0.6",
+    "vite-plugin-zip-pack": "^1.2.3",
     "vitest": "^2.0.3"
   },
   "prettier": {
