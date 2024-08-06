@@ -26,11 +26,10 @@ jobs:
         # only continue if npm run build produces a dirty work tree
         # (':dist/*.zip' ignores zipfiles in dist, which always change)
         git diff --exit-code -- ':!dist/*.zip' || exit_code=$?
-        if [ "$exit_code" == "0" ]; then
-          exit 0
+        if [ "$exit_code" == "1" ]; then
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add .
+          git commit -m "rebuild dist"
+          git push
         fi
-        git config user.name github-actions
-        git config user.email github-actions@github.com
-        git add .
-        git commit -m "rebuild dist"
-        git push
