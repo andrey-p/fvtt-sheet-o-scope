@@ -5,8 +5,8 @@
   "version": "0.2.0",
   "url": "https://github.com/andrey-p/fvtt-sheet-o-scope/",
   "manifest": "https://raw.githubusercontent.com/andrey-p/fvtt-sheet-o-scope/main/dist/module.json",
-  "download": "https://github.com/andrey-p/fvtt-sheet-o-scope/raw/main/dist/sheet-o-scope.zip",
-  "authors": [{ "name": "sdf" }],
+  "download": "https://raw.githubusercontent.com/andrey-p/fvtt-sheet-o-scope/main/dist/sheet-o-scope.zip",
+  "authors": [{ "name": "Andrey P" }],
   "esmodules": ["./sheet-o-scope.js"],
   "styles": ["./sheet-o-scope.css"],
   "languages": [
