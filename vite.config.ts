@@ -38,9 +38,9 @@ export default defineConfig(({ mode }) => {
         // the manifest needs to be the _latest_ one
         // (so Foundry can check it and figure out if there's an update)
         .replace('{{manifestLocation}}', `${versionedReleaseUrlBase}/latest/download`)
-        // the download needs to match the one of the _current version_
+        // the download needs to match the one of the _current_ version
         // (so Foundry has a consistent path to it)
-        .replace('{{zipLocation}}', `${versionedReleaseUrlBase}/download/${version}`);
+        .replace('{{zipLocation}}', `${versionedReleaseUrlBase}/download/v${version}`);
     };
   }
 
