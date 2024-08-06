@@ -12,11 +12,17 @@ Installing
 
 ### Latest release version
 
-This module is still under heavy development and so doesn't have an official release yet. Watch this space!
+This module is still under heavy development and so hasn't been propely published to the Foundry module repository.
+
+You can install the latest stable(ish) version by using this manifest URL:
+
+```
+https://github.com/andrey-p/fvtt-sheet-o-scope/releases/latest/download/module.json
+```
 
 ### Latest development version
 
-Use this manifest.json URL:
+Use this manifest.json URL instead:
 
 ```
 https://raw.githubusercontent.com/andrey-p/fvtt-sheet-o-scope/main/dist/module.json
