@@ -23,6 +23,11 @@ jobs:
     - run: |
         npm ci
         npm run build
+        # only continue if npm run build produces a dirty work tree
+        git diff --exit-code || exit_code=$?
+        if ["$exit_code" -eq 0]; then
+          exit 0
+        fi
         git config user.name github-actions
         git config user.email github-actions@github.com
         git add .
