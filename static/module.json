@@ -6,7 +6,7 @@
   "url": "https://github.com/andrey-p/fvtt-sheet-o-scope/",
   "manifest": "{{manifestLocation}}/module.json",
   "download": "{{zipLocation}}/sheet-o-scope.zip",
-  "authors": [{ "name": "sdf" }],
+  "authors": [{ "name": "Andrey P" }],
   "esmodules": ["./sheet-o-scope.js"],
   "styles": ["./sheet-o-scope.css"],
   "languages": [
