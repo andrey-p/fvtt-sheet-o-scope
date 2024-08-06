@@ -17,6 +17,7 @@ export default defineConfig(({ mode }) => {
       outDir,
       lib: {
         entry: resolve(__dirname, 'src/main.ts'),
+        formats: ['es'],
         name: 'sheet-o-scope',
         fileName: 'sheet-o-scope'
       }
