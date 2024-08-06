@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsc && vite build --watch --mode development",
-    "build": "tsc && vite build --mode production",
+    "zip": "cd dist && rm -f ./sheet-o-scope.zip && zip -r ./sheet-o-scope.zip ./*",
+    "build": "tsc && vite build --mode production && npm run zip",
     "foundry-dev": "fvtt launch --world local-dev",
     "lint": "prettier --write src types static tests",
     "test": "vitest --watch=false",
