@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
       .replace('{{zipLocation}}', devReleaseUrlBase);
   };
 
-  if (mode === 'local') {
+  if (mode === 'dev') {
     outDir = 'build';
   } else if (mode === 'dev-release') {
     outDir = 'dist';

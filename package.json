@@ -4,7 +4,7 @@
   "version": "0.2.0",
   "type": "module",
   "scripts": {
-    "dev": "tsc && vite build --watch --mode local",
+    "dev": "tsc && vite build --watch --mode dev",
     "build": "tsc && vite build --mode dev-release",
     "build-versioned": "tsc && vite build --mode versioned-release",
     "foundry-dev": "fvtt launch --world local-dev",
