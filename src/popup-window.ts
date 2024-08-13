@@ -1,6 +1,6 @@
 import { log, warn } from './utils/logger';
 import { getEntitySheet } from './utils/foundry';
-import { getNextOpenablePopUp } from './utils/storage';
+import { getNextOpenablePopUp } from './popup-storage';
 
 import { EntityType, CrossWindowAction } from './enums';
 

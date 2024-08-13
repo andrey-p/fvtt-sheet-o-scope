@@ -22,3 +22,27 @@ export function getEntitySheet(
     return game.journal?.get(id)?.sheet;
   }
 }
+
+// Use Foundry flags to persist a variety of things
+// see: https://foundryvtt.com/api/classes/foundry.abstract.Document.html#setFlag
+
+export function getUserFlag(key :string) :any {
+  const game = getGame();
+  const thisUser = game.users?.current;
+
+  if (thisUser) {
+    return thisUser.getFlag('sheet-o-scope', key);
+  }
+
+  return null;
+}
+
+export function setUserFlag(key :string, val :any) {
+  const game = getGame();
+  const thisUser = game.users?.current;
+
+  if (thisUser) {
+    thisUser.setFlag('sheet-o-scope', key, val);
+  }
+}
+

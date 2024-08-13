@@ -1,6 +1,6 @@
 import { log } from './utils/logger';
 import { getGame, getEntitySheet } from './utils/foundry';
-import { addOpenablePopUp } from './utils/storage';
+import { addOpenablePopUp } from './popup-storage';
 
 import { EntityType, CrossWindowAction } from './enums';
 
