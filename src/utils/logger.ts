@@ -1,4 +1,4 @@
-const isDev = import.meta.env.MODE === 'development';
+const isDev = import.meta.env.MODE === 'dev';
 
 if (isDev) {
   CONFIG.debug.hooks = true;
