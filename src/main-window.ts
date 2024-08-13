@@ -1,5 +1,6 @@
 import { log } from './utils/logger';
 import { getGame, getEntitySheet } from './utils/foundry';
+import { addOpenablePopUp } from './utils/storage';
 
 import { EntityType, CrossWindowAction } from './enums';
 
@@ -75,10 +76,16 @@ class MainWindow extends EventTarget {
     const { width, height } = sheet.options;
     const id = sheet.document.id;
 
+    if (!id) {
+      return;
+    }
+
+    addOpenablePopUp({ id, type });
+
     sheet.close();
 
     window.open(
-      `/game?sheetView=1&id=${id}&type=${type}`,
+      `/game?sheetView=1`,
       `sheet-o-scope-popup-${id}`,
       `popup=true,width=${width},height=${height}`
     );

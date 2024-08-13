@@ -1,4 +1,5 @@
-import { getWindowMode, getPopUpConfig } from './utils/url';
+import { getWindowMode } from './utils/url';
+import { getNextOpenablePopUp } from './utils/storage';
 
 import WindowMode from './enums/window-mode';
 
@@ -7,7 +8,7 @@ import PopUpWindow from './popup-window';
 
 const url = window.location.toString();
 const windowMode = getWindowMode(url);
-const popUpConfig = getPopUpConfig(url);
+const popUpConfig = getNextOpenablePopUp();
 
 // this module has two entry points, one for the main window
 // and one for the popup that this module opens
