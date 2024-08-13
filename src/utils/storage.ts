@@ -41,6 +41,8 @@ export function set(key :string, val :any) {
 // These are handled on a last in / first out basis
 // in order to account for someone opening multiple popups at a time
 
+const POPUP_EXPIRY_TIMEOUT_MS = 5 * 60 * 1000; // 5 mins
+
 export function getNextOpenablePopUp(): PopUpConfig | null {
   const popUps = get('popUps') as PopUpConfig[] | null;
 
@@ -50,7 +52,20 @@ export function getNextOpenablePopUp(): PopUpConfig | null {
 
   log(`available popups: [${popUps.map(popUp => popUp.id)}]`);
 
-  const popUp = popUps.shift();
+  let popUp = null;
+
+  while (!popUp && popUps.length) {
+    popUp = popUps.shift();
+
+    // enforce popup expiry - we don't want a failed popup open
+    // from 2 weeks ago to suddenly appear at today's session start
+    if (popUp &&
+        popUp.created &&
+        popUp.created < Date.now() - POPUP_EXPIRY_TIMEOUT_MS) {
+      popUp = null;
+    }
+  }
+
   set('popUps', popUps);
 
   return popUp || null;
@@ -58,6 +73,8 @@ export function getNextOpenablePopUp(): PopUpConfig | null {
 
 export function addOpenablePopUp(config: PopUpConfig) {
   let popUps = get('popUps') as PopUpConfig[] | null;
+
+  config.created = Date.now();
 
   if (popUps) {
     popUps.push(config);
