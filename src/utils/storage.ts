@@ -1,4 +1,4 @@
-import { warn } from './logger';
+import { log, warn } from './logger';
 import { getGame } from './foundry';
 
 // This module uses Foundry flags to persist a variety of things:
@@ -48,6 +48,8 @@ export function getNextOpenablePopUp(): PopUpConfig | null {
     return null;
   }
 
+  log(`available popups: [${popUps.map(popUp => popUp.id)}]`);
+
   const popUp = popUps.shift();
   set('popUps', popUps);
 
@@ -62,6 +64,8 @@ export function addOpenablePopUp(config: PopUpConfig) {
   } else {
     popUps = [config];
   }
+
+  log(`popups now: [${popUps.map(popUp => popUp.id)}]`);
 
   set('popUps', popUps);
 }
