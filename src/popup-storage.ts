@@ -18,7 +18,7 @@ export function getNextOpenablePopUp(): PopUpConfig | null {
     return null;
   }
 
-  log(`available popups: [${popUps.map(popUp => popUp.id)}]`);
+  log(`available popups: [${popUps.map((popUp) => popUp.id)}]`);
 
   let popUp = null;
 
@@ -27,9 +27,11 @@ export function getNextOpenablePopUp(): PopUpConfig | null {
 
     // enforce popup expiry - we don't want a failed popup open
     // from 2 weeks ago to suddenly appear at today's session start
-    if (popUp &&
-        popUp.created &&
-        popUp.created < Date.now() - POPUP_EXPIRY_TIMEOUT_MS) {
+    if (
+      popUp &&
+      popUp.created &&
+      popUp.created < Date.now() - POPUP_EXPIRY_TIMEOUT_MS
+    ) {
       popUp = null;
     }
   }
@@ -50,7 +52,7 @@ export function addOpenablePopUp(config: PopUpConfig) {
     popUps = [config];
   }
 
-  log(`popups now: [${popUps.map(popUp => popUp.id)}]`);
+  log(`popups now: [${popUps.map((popUp) => popUp.id)}]`);
 
   setUserFlag('popUps', popUps);
 }

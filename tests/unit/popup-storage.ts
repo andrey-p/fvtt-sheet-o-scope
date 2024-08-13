@@ -1,12 +1,15 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { addOpenablePopUp, getNextOpenablePopUp } from '../../src/popup-storage';
+import {
+  addOpenablePopUp,
+  getNextOpenablePopUp
+} from '../../src/popup-storage';
 
 vi.mock('../../src/utils/foundry', () => {
   const fakeStore = {};
 
   return {
     getUserFlag: (key) => fakeStore[key] || null,
-    setUserFlag: (key, val) => fakeStore[key] = val
+    setUserFlag: (key, val) => (fakeStore[key] = val)
   };
 });
 
@@ -25,7 +28,10 @@ describe('popup-storage', () => {
     addOpenablePopUp({ id: 'def', type: 'journal' });
 
     expect(getNextOpenablePopUp()).toMatchObject({ id: 'abc', type: 'actor' });
-    expect(getNextOpenablePopUp()).toMatchObject({ id: 'def', type: 'journal' });
+    expect(getNextOpenablePopUp()).toMatchObject({
+      id: 'def',
+      type: 'journal'
+    });
     expect(getNextOpenablePopUp()).toBeNull();
   });
 
@@ -39,7 +45,10 @@ describe('popup-storage', () => {
 
     addOpenablePopUp({ id: 'def', type: 'journal' });
 
-    expect(getNextOpenablePopUp()).toMatchObject({ id: 'def', type: 'journal' });
+    expect(getNextOpenablePopUp()).toMatchObject({
+      id: 'def',
+      type: 'journal'
+    });
     expect(getNextOpenablePopUp()).toBeNull();
   });
 });

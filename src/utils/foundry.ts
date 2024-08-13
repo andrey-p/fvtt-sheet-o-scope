@@ -26,7 +26,7 @@ export function getEntitySheet(
 // Use Foundry flags to persist a variety of things
 // see: https://foundryvtt.com/api/classes/foundry.abstract.Document.html#setFlag
 
-export function getUserFlag(key :string) :any {
+export function getUserFlag(key: string): any {
   const game = getGame();
   const thisUser = game.users?.current;
 
@@ -37,7 +37,7 @@ export function getUserFlag(key :string) :any {
   return null;
 }
 
-export function setUserFlag(key :string, val :any) {
+export function setUserFlag(key: string, val: any) {
   const game = getGame();
   const thisUser = game.users?.current;
 
@@ -45,4 +45,3 @@ export function setUserFlag(key :string, val :any) {
     thisUser.setFlag('sheet-o-scope', key, val);
   }
 }
-
