@@ -2,9 +2,9 @@ import { log, warn } from './utils/logger';
 import { getEntitySheet } from './utils/foundry';
 import { getNextOpenablePopUp } from './popup-storage';
 
-import { EntityType, CrossWindowAction } from './enums';
+import { EntityType, SocketAction } from './enums';
 
-import CrossWindowComms from './cross-window-comms';
+import SocketHandler from './socket-handler';
 import ReattachButton from './ui/reattach-button';
 
 import BlockUnnecessaryNotificationsShim from './shims/block-unnecessary-notifications';
@@ -18,7 +18,7 @@ const shims = [
 ];
 
 class PopUpWindow {
-  #crossWindowComms?: CrossWindowComms;
+  #socketHandler?: SocketHandler;
   #isActuallyPopup: boolean;
 
   constructor() {
@@ -53,7 +53,7 @@ class PopUpWindow {
   }
 
   #setUpShims(): void {
-    this.#crossWindowComms = new CrossWindowComms();
+    this.#socketHandler = new SocketHandler();
 
     shims.forEach((Shim) => {
       const shim = new Shim();
@@ -146,7 +146,7 @@ class PopUpWindow {
   }
 
   #reattachSheet(type: EntityType, id: string): void {
-    this.#crossWindowComms?.send(CrossWindowAction.Reattach, { id, type });
+    this.#socketHandler?.send(SocketAction.Reattach, { id, type });
 
     window.close();
   }

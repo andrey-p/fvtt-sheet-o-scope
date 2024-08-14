@@ -1,7 +1,7 @@
-import { CrossWindowAction } from './enums';
+import { SocketAction } from './enums';
 import { getGame } from './utils/foundry';
 
-class CrossWindowComms extends EventTarget {
+class SocketHandler extends EventTarget {
   constructor() {
     super();
 
@@ -14,7 +14,7 @@ class CrossWindowComms extends EventTarget {
     game.socket.on('module.sheet-o-scope', this.#onMessageReceived.bind(this));
   }
 
-  send(action: CrossWindowAction, data: PopUpConfig): void {
+  send(action: SocketAction, data: PopUpConfig): void {
     const game = getGame();
 
     const message = {
@@ -26,17 +26,17 @@ class CrossWindowComms extends EventTarget {
     game.socket?.emit('module.sheet-o-scope', message);
   }
 
-  #onMessageReceived(message: CrossWindowMessage): void {
+  #onMessageReceived(message: SocketMessage): void {
     if (this.#verifyMessage(message)) {
       this.dispatchEvent(new MessageEvent('message', { data: message }));
     }
   }
 
-  #verifyMessage(message: CrossWindowMessage): boolean {
+  #verifyMessage(message: SocketMessage): boolean {
     const game = getGame();
 
     return message.sender === game.userId;
   }
 }
 
-export default CrossWindowComms;
+export default SocketHandler;

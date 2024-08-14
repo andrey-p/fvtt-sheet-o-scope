@@ -6,14 +6,14 @@ type PopUpConfig = {
   created?: number;
 };
 
-type CrossWindowMessage = {
+type SocketMessage = {
   sender: 'sheet-o-scope';
-  action: CrossWindowAction;
+  action: SocketAction;
   data: PopUpConfig;
 };
 
-interface CrossWindowMessageEvent extends MessageEvent {
-  data: CrossWindowMessage;
+interface SocketMessageEvent extends MessageEvent {
+  data: SocketMessage;
 }
 
 interface Shim {
