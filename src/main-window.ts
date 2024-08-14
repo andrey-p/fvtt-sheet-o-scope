@@ -2,18 +2,17 @@ import { log } from './utils/logger';
 import { getGame, getEntitySheet } from './utils/foundry';
 import { addOpenablePopUp } from './popup-storage';
 
-import { EntityType, CrossWindowAction } from './enums';
+import { EntityType, SocketAction } from './enums';
 
-import CrossWindowComms from './cross-window-comms.ts';
+import SocketHandler from './socket-handler.ts';
 import DetachButton from './ui/detach-button.ts';
 
 class MainWindow extends EventTarget {
-  #crossWindowComms: CrossWindowComms;
+  #socketHandler?: SocketHandler;
 
   constructor() {
     super();
 
-    this.#crossWindowComms = new CrossWindowComms();
     Hooks.once('ready', this.#initialize.bind(this));
   }
 
@@ -46,16 +45,17 @@ class MainWindow extends EventTarget {
       this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
     );
 
-    this.#crossWindowComms.addEventListener(
+    this.#socketHandler = new SocketHandler();
+    this.#socketHandler.addEventListener(
       'message',
       this.#onMessageReceived.bind(this) as EventListener
     );
   }
 
-  #onMessageReceived(event: CrossWindowMessageEvent): void {
+  #onMessageReceived(event: SocketMessageEvent): void {
     const eventData = event.data;
 
-    if (eventData.action === CrossWindowAction.Reattach) {
+    if (eventData.action === SocketAction.Reattach) {
       this.#reattachSheet(eventData.data);
     }
   }

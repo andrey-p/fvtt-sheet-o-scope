@@ -2,9 +2,9 @@ import { log, warn } from './utils/logger';
 import { getEntitySheet } from './utils/foundry';
 import { getNextOpenablePopUp } from './popup-storage';
 
-import { EntityType, CrossWindowAction } from './enums';
+import { EntityType, SocketAction } from './enums';
 
-import CrossWindowComms from './cross-window-comms';
+import SocketHandler from './socket-handler';
 import ReattachButton from './ui/reattach-button';
 
 import BlockUnnecessaryNotificationsShim from './shims/block-unnecessary-notifications';
@@ -18,8 +18,7 @@ const shims = [
 ];
 
 class PopUpWindow {
-  #crossWindowComms: CrossWindowComms;
-
+  #socketHandler?: SocketHandler;
   #isActuallyPopup: boolean;
 
   constructor() {
@@ -28,8 +27,6 @@ class PopUpWindow {
     // and a few of the special tweaks we want to do are unnecessary
     this.#isActuallyPopup =
       !!window.opener && window.name.includes('sheet-o-scope');
-
-    this.#crossWindowComms = new CrossWindowComms(window.opener);
 
     Hooks.once('init', this.#setUpShims.bind(this));
     Hooks.once('ready', this.#renderSheet.bind(this));
@@ -56,6 +53,8 @@ class PopUpWindow {
   }
 
   #setUpShims(): void {
+    this.#socketHandler = new SocketHandler();
+
     shims.forEach((Shim) => {
       const shim = new Shim();
       shim.run();
@@ -129,15 +128,13 @@ class PopUpWindow {
       };
     }
 
-    // add reattach button only makes sense if there's an opener to send the button back to
-    if (this.#isActuallyPopup) {
-      const reattachButton = new ReattachButton();
+    // add reattach button
+    const reattachButton = new ReattachButton();
 
-      reattachButton.onclick = () => {
-        this.#reattachSheet(type, id);
-      };
-      buttons.unshift(reattachButton);
-    }
+    reattachButton.onclick = () => {
+      this.#reattachSheet(type, id);
+    };
+    buttons.unshift(reattachButton);
   }
 
   #modifySheet(_sheet: DocumentSheet, elems: Element[]): void {
@@ -147,7 +144,7 @@ class PopUpWindow {
   }
 
   #reattachSheet(type: EntityType, id: string): void {
-    this.#crossWindowComms.send(CrossWindowAction.Reattach, { id, type });
+    this.#socketHandler?.send(SocketAction.Reattach, { id, type });
 
     window.close();
   }
