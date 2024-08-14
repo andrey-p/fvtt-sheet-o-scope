@@ -8,7 +8,9 @@ class SocketHandler extends EventTarget {
     const game = getGame();
 
     if (!game.socket || !game.userId) {
-      throw new Error('can\'t initialise websocket module before game is initialised');
+      throw new Error(
+        "can't initialise websocket module before game is initialised"
+      );
     }
 
     game.socket.on('module.sheet-o-scope', this.#onMessageReceived.bind(this));
