@@ -9,6 +9,7 @@
   "authors": [{ "name": "Andrey P" }],
   "esmodules": ["./sheet-o-scope.js"],
   "styles": ["./sheet-o-scope.css"],
+  "socket": true,
   "languages": [
     {
       "lang": "en",

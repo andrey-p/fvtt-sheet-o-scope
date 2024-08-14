@@ -8,12 +8,11 @@ import CrossWindowComms from './cross-window-comms.ts';
 import DetachButton from './ui/detach-button.ts';
 
 class MainWindow extends EventTarget {
-  #crossWindowComms: CrossWindowComms;
+  #crossWindowComms?: CrossWindowComms;
 
   constructor() {
     super();
 
-    this.#crossWindowComms = new CrossWindowComms();
     Hooks.once('ready', this.#initialize.bind(this));
   }
 
@@ -46,6 +45,7 @@ class MainWindow extends EventTarget {
       this.#modifySheetHeaderButtons.bind(this, EntityType.Journal)
     );
 
+    this.#crossWindowComms = new CrossWindowComms();
     this.#crossWindowComms.addEventListener(
       'message',
       this.#onMessageReceived.bind(this) as EventListener

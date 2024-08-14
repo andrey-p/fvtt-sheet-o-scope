@@ -18,8 +18,7 @@ const shims = [
 ];
 
 class PopUpWindow {
-  #crossWindowComms: CrossWindowComms;
-
+  #crossWindowComms?: CrossWindowComms;
   #isActuallyPopup: boolean;
 
   constructor() {
@@ -28,8 +27,6 @@ class PopUpWindow {
     // and a few of the special tweaks we want to do are unnecessary
     this.#isActuallyPopup =
       !!window.opener && window.name.includes('sheet-o-scope');
-
-    this.#crossWindowComms = new CrossWindowComms(window.opener);
 
     Hooks.once('init', this.#setUpShims.bind(this));
     Hooks.once('ready', this.#renderSheet.bind(this));
@@ -56,6 +53,8 @@ class PopUpWindow {
   }
 
   #setUpShims(): void {
+    this.#crossWindowComms = new CrossWindowComms();
+
     shims.forEach((Shim) => {
       const shim = new Shim();
       shim.run();
@@ -147,7 +146,7 @@ class PopUpWindow {
   }
 
   #reattachSheet(type: EntityType, id: string): void {
-    this.#crossWindowComms.send(CrossWindowAction.Reattach, { id, type });
+    this.#crossWindowComms?.send(CrossWindowAction.Reattach, { id, type });
 
     window.close();
   }

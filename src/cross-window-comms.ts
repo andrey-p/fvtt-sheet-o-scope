@@ -1,47 +1,41 @@
 import { CrossWindowAction } from './enums';
+import { getGame } from './utils/foundry';
 
 class CrossWindowComms extends EventTarget {
-  #target: Window | null;
-
-  constructor(target: Window | null = null) {
+  constructor() {
     super();
 
-    this.#target = target;
+    const game = getGame();
 
-    window.addEventListener('message', this.#onMessageReceived.bind(this));
+    if (!game.socket || !game.userId) {
+      throw new Error('can\'t initialise websocket module before game is initialised');
+    }
+
+    game.socket.on('module.sheet-o-scope', this.#onMessageReceived.bind(this));
   }
 
   send(action: CrossWindowAction, data: PopUpConfig): void {
+    const game = getGame();
+
     const message = {
-      sender: 'sheet-o-scope',
+      sender: game.userId,
       action,
       data
     };
 
-    if (this.#target) {
-      this.#target.postMessage(message);
+    game.socket?.emit('module.sheet-o-scope', message);
+  }
+
+  #onMessageReceived(message: CrossWindowMessage): void {
+    if (this.#verifyMessage(message)) {
+      this.dispatchEvent(new MessageEvent('message', { data: message }));
     }
   }
 
-  #onMessageReceived(event: CrossWindowMessageEvent): void {
-    if (this.#verifyMessage(event)) {
-      // cannot re-dispatch the same event, browser complains
-      const newEvent = new MessageEvent('message', { data: event.data });
-      this.dispatchEvent(newEvent);
-    }
-  }
+  #verifyMessage(message: CrossWindowMessage): boolean {
+    const game = getGame();
 
-  #verifyMessage(event: CrossWindowMessageEvent): boolean {
-    const message = event.data;
-
-    if (
-      event.origin === window.location.origin &&
-      message.sender === 'sheet-o-scope'
-    ) {
-      return true;
-    }
-
-    return false;
+    return message.sender === game.userId;
   }
 }
 
