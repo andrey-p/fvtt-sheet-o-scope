@@ -17,7 +17,7 @@ const shims = [
   DisableCanvasShim
 ];
 
-class PopUpWindow {
+class SecondaryWindow {
   #socketHandler?: SocketHandler;
   #isActuallyPopup: boolean;
 
@@ -150,4 +150,4 @@ class PopUpWindow {
   }
 }
 
-export default PopUpWindow;
+export default SecondaryWindow;
