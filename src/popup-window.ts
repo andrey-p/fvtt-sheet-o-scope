@@ -1,5 +1,6 @@
 import { log, warn } from './utils/logger';
 import { getEntitySheet } from './utils/foundry';
+import { getNextOpenablePopUp } from './popup-storage';
 
 import { EntityType, CrossWindowAction } from './enums';
 
@@ -21,7 +22,7 @@ class PopUpWindow {
 
   #isActuallyPopup: boolean;
 
-  constructor(config: PopUpConfig) {
+  constructor() {
     // it's possible that this was opened from Foundry running in Electron
     // in which case it's opened as a large-size browser tab with full browser chrome, not a popup window
     // and a few of the special tweaks we want to do are unnecessary
@@ -31,7 +32,7 @@ class PopUpWindow {
     this.#crossWindowComms = new CrossWindowComms(window.opener);
 
     Hooks.once('init', this.#setUpShims.bind(this));
-    Hooks.once('ready', this.#renderSheet.bind(this, config));
+    Hooks.once('ready', this.#renderSheet.bind(this));
 
     Hooks.on(
       'getActorSheetHeaderButtons',
@@ -61,7 +62,13 @@ class PopUpWindow {
     });
   }
 
-  #renderSheet(config: PopUpConfig): void {
+  #renderSheet(): void {
+    const config = getNextOpenablePopUp();
+
+    if (!config) {
+      return;
+    }
+
     const { id, type } = config;
     const sheet = getEntitySheet(id, type);
 

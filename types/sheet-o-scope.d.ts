@@ -3,6 +3,7 @@
 type PopUpConfig = {
   id: string;
   type: EntityType;
+  created?: number;
 };
 
 type CrossWindowMessage = {
