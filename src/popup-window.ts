@@ -128,15 +128,13 @@ class PopUpWindow {
       };
     }
 
-    // add reattach button only makes sense if there's an opener to send the button back to
-    if (this.#isActuallyPopup) {
-      const reattachButton = new ReattachButton();
+    // add reattach button
+    const reattachButton = new ReattachButton();
 
-      reattachButton.onclick = () => {
-        this.#reattachSheet(type, id);
-      };
-      buttons.unshift(reattachButton);
-    }
+    reattachButton.onclick = () => {
+      this.#reattachSheet(type, id);
+    };
+    buttons.unshift(reattachButton);
   }
 
   #modifySheet(_sheet: DocumentSheet, elems: Element[]): void {
