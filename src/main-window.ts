@@ -1,6 +1,6 @@
 import { log } from './utils/logger';
 import { getGame, getEntitySheet } from './utils/foundry';
-import { addOpenablePopUp } from './popup-storage';
+import { addOpenableSheet } from './sheet-persistence';
 
 import { EntityType, SocketAction } from './enums';
 
@@ -80,18 +80,18 @@ class MainWindow extends EventTarget {
       return;
     }
 
-    addOpenablePopUp({ id, type });
+    addOpenableSheet({ id, type });
 
     sheet.close();
 
     window.open(
       `/game?sheetView=1`,
-      `sheet-o-scope-popup-${id}`,
+      `sheet-o-scope-secondary-${id}`,
       `popup=true,width=${width},height=${height}`
     );
   }
 
-  #reattachSheet(config: PopUpConfig): void {
+  #reattachSheet(config: SheetConfig): void {
     const { id, type } = config;
     const sheet = getEntitySheet(id, type);
 

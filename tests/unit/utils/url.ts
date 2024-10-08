@@ -9,9 +9,9 @@ describe('utils/url', () => {
         WindowMode.Main
       );
     });
-    test('gets popup window mode correctly', () => {
+    test('gets secondary window mode correctly', () => {
       expect(getWindowMode('http://localhost:30000/game?sheetView=1')).toBe(
-        WindowMode.PopUp
+        WindowMode.Secondary
       );
     });
   });

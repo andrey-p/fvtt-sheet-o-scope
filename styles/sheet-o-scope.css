@@ -1,6 +1,6 @@
-/* small tweaks for the popup window */
-.sheet-o-scope-popup {
-  & .window-app.popup-sheet {
+/* small tweaks for the secondary window */
+.sheet-o-scope-secondary {
+  & .window-app.secondary-window-sheet {
 
     /* disable transparency and draggable cursor on header */
     & .window-header {
@@ -11,7 +11,7 @@
 
   /*
    * has an unsightly border before it renders
-   * (which, in our popup window, it never does)
+   * (which, in our secondary window, it never does)
    */
   #sidebar {
     display: none;

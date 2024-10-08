@@ -1,5 +1,5 @@
-enum CrossWindowAction {
+enum SocketAction {
   Reattach = 'reattach'
 }
 
-export default CrossWindowAction;
+export default SocketAction;

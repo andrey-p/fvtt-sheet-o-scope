@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 
-type PopUpConfig = {
+type SheetConfig = {
   id: string;
   type: EntityType;
   created?: number;
@@ -9,7 +9,7 @@ type PopUpConfig = {
 type SocketMessage = {
   sender: 'sheet-o-scope';
   action: SocketAction;
-  data: PopUpConfig;
+  data: SheetConfig;
 };
 
 interface SocketMessageEvent extends MessageEvent {

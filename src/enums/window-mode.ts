@@ -1,6 +1,6 @@
 enum WindowMode {
   Main = 'main',
-  PopUp = 'popUp'
+  Secondary = 'secondary'
 }
 
 export default WindowMode;

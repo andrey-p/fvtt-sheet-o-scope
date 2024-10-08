@@ -1,6 +1,6 @@
 import { log, warn } from './utils/logger';
 import { getEntitySheet } from './utils/foundry';
-import { getNextOpenablePopUp } from './popup-storage';
+import { getNextOpenableSheet } from './sheet-persistence';
 
 import { EntityType, SocketAction } from './enums';
 
@@ -17,15 +17,15 @@ const shims = [
   DisableCanvasShim
 ];
 
-class PopUpWindow {
+class SecondaryWindow {
   #socketHandler?: SocketHandler;
-  #isActuallyPopup: boolean;
+  #isRenderedInPopup: boolean;
 
   constructor() {
     // it's possible that this was opened from Foundry running in Electron
     // in which case it's opened as a large-size browser tab with full browser chrome, not a popup window
     // and a few of the special tweaks we want to do are unnecessary
-    this.#isActuallyPopup =
+    this.#isRenderedInPopup =
       !!window.opener && window.name.includes('sheet-o-scope');
 
     Hooks.once('init', this.#setUpShims.bind(this));
@@ -49,7 +49,7 @@ class PopUpWindow {
     Hooks.on('renderJournalSheet', this.#modifySheet.bind(this));
 
     // add a CSS hook to the body for all sorts of minor CSS tweaks
-    document.querySelector('body')?.classList.add('sheet-o-scope-popup');
+    document.querySelector('body')?.classList.add('sheet-o-scope-secondary');
   }
 
   #setUpShims(): void {
@@ -62,7 +62,7 @@ class PopUpWindow {
   }
 
   #renderSheet(): void {
-    const config = getNextOpenablePopUp();
+    const config = getNextOpenableSheet();
 
     if (!config) {
       return;
@@ -76,7 +76,7 @@ class PopUpWindow {
 
       // if this view is actually showing in a popup,
       // resizing it is done via the window
-      if (this.#isActuallyPopup) {
+      if (this.#isRenderedInPopup) {
         options.resizable = false;
 
         window.addEventListener(
@@ -138,8 +138,8 @@ class PopUpWindow {
   }
 
   #modifySheet(_sheet: DocumentSheet, elems: Element[]): void {
-    if (this.#isActuallyPopup) {
-      elems[0].classList.add('popup-sheet');
+    if (this.#isRenderedInPopup) {
+      elems[0].classList.add('secondary-window-sheet');
     }
   }
 
@@ -150,4 +150,4 @@ class PopUpWindow {
   }
 }
 
-export default PopUpWindow;
+export default SecondaryWindow;
