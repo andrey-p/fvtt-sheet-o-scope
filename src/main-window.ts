@@ -56,7 +56,7 @@ class MainWindow extends EventTarget {
     const eventData = event.data;
 
     if (eventData.action === SocketAction.Reattach) {
-      this.#reattachSheet(eventData.data);
+      this.#reattachSheet(eventData.data as SheetConfig);
     }
   }
 

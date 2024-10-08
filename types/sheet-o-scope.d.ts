@@ -6,10 +6,12 @@ type SheetConfig = {
   created?: number;
 };
 
+type SocketMessagePayload = SheetConfig | null;
+
 type SocketMessage = {
-  sender: 'sheet-o-scope';
+  sender: string;
   action: SocketAction;
-  data: SheetConfig;
+  data: SocketMessagePayload;
 };
 
 interface SocketMessageEvent extends MessageEvent {

@@ -1,7 +1,11 @@
+import type { Socket } from "socket.io-client";
 import { SocketAction } from './enums';
 import { getGame } from './utils/foundry';
 
 class SocketHandler extends EventTarget {
+  #socket: Socket;
+  #senderUserId: string;
+
   constructor() {
     super();
 
@@ -13,19 +17,20 @@ class SocketHandler extends EventTarget {
       );
     }
 
-    game.socket.on('module.sheet-o-scope', this.#onMessageReceived.bind(this));
+    this.#socket = game.socket;
+    this.#senderUserId = game.userId;
+
+    this.#socket.on('module.sheet-o-scope', this.#onMessageReceived.bind(this));
   }
 
-  send(action: SocketAction, data: SheetConfig): void {
-    const game = getGame();
-
+  send(action: SocketAction, data?: SocketMessagePayload): void {
     const message = {
-      sender: game.userId,
+      sender: this.#senderUserId,
       action,
       data
     };
 
-    game.socket?.emit('module.sheet-o-scope', message);
+    this.#socket.emit('module.sheet-o-scope', message);
   }
 
   #onMessageReceived(message: SocketMessage): void {
@@ -35,9 +40,7 @@ class SocketHandler extends EventTarget {
   }
 
   #verifyMessage(message: SocketMessage): boolean {
-    const game = getGame();
-
-    return message.sender === game.userId;
+    return message.sender === this.#senderUserId;
   }
 }
 

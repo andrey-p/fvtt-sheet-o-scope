@@ -1,5 +1,7 @@
 enum SocketAction {
-  Reattach = 'reattach'
+  Reattach = 'reattach',
+  Ping = 'ping',
+  PingAck = 'pingAck'
 }
 
 export default SocketAction;
