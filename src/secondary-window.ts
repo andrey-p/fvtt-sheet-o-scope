@@ -28,7 +28,7 @@ class SecondaryWindow {
     this.#isRenderedInPopup =
       !!window.opener && window.name.includes('sheet-o-scope');
 
-    Hooks.once('init', this.#setUpShims.bind(this));
+    Hooks.once('init', this.#initialize.bind(this));
     Hooks.once('ready', this.#renderSheet.bind(this));
 
     Hooks.on(
@@ -52,8 +52,12 @@ class SecondaryWindow {
     document.querySelector('body')?.classList.add('sheet-o-scope-secondary');
   }
 
-  #setUpShims(): void {
+  #initialize(): void {
     this.#socketHandler = new SocketHandler();
+    this.#socketHandler.addEventListener(
+      'message',
+      this.#onMessageReceived.bind(this) as EventListener
+    );
 
     shims.forEach((Shim) => {
       const shim = new Shim();
@@ -147,6 +151,15 @@ class SecondaryWindow {
     this.#socketHandler?.send(SocketAction.Reattach, { id, type });
 
     window.close();
+  }
+
+  #onMessageReceived(event: SocketMessageEvent): void {
+    const eventData = event.data;
+
+    // respond to pings from the main window
+    if (eventData.action === SocketAction.Ping) {
+      this.#socketHandler?.send(SocketAction.PingAck);
+    }
   }
 }
 

@@ -72,7 +72,7 @@ class MainWindow extends EventTarget {
     buttons.unshift(button);
   }
 
-  #detachSheet(type: EntityType, sheet: DocumentSheet): void {
+  async #detachSheet(type: EntityType, sheet: DocumentSheet): Promise<void> {
     const { width, height } = sheet.options;
     const id = sheet.document.id;
 
@@ -84,11 +84,17 @@ class MainWindow extends EventTarget {
 
     sheet.close();
 
-    window.open(
-      `/game?sheetView=1`,
-      `sheet-o-scope-secondary-${id}`,
-      `popup=true,width=${width},height=${height}`
-    );
+    const hasSecondaryWindow = await this.#isSecondaryWindowOpen();
+
+    if (!hasSecondaryWindow) {
+      window.open(
+        `/game?sheetView=1`,
+        `sheet-o-scope-secondary-${id}`,
+        `popup=true,width=${+(width ?? 0) + 100},height=${+(height ?? 0) + 100}`
+      );
+    } else {
+      console.log('window already open!!');
+    }
   }
 
   #reattachSheet(config: SheetConfig): void {
@@ -98,6 +104,42 @@ class MainWindow extends EventTarget {
     if (sheet) {
       sheet.render(true);
     }
+  }
+
+  // check if a secondary window is open by pinging it via websocket
+  async #isSecondaryWindowOpen(): Promise<boolean> {
+    const socketHandler = this.#socketHandler;
+
+    if (!socketHandler) {
+      throw new Error('Can\'t ping if socket handler isn\'t initialized!');
+    }
+
+    // add a temporary listener to check that a ping comes back
+    // within a 1s timeout
+    //
+    // contained in a single promise to keep things simple elsewhere
+    const promise = new Promise<boolean>(resolve => {
+      let timeout: ReturnType<typeof setTimeout>;
+
+      const temporaryListener = ((event: SocketMessageEvent) => {
+        if (event.data.action === SocketAction.PingAck) {
+          socketHandler.removeEventListener('message', temporaryListener);
+          clearTimeout(timeout);
+          resolve(true);
+        }
+      }) as EventListener;
+
+      timeout = setTimeout(() => {
+        socketHandler.removeEventListener('message', temporaryListener);
+        resolve(false);
+      }, 1000);
+
+      socketHandler.addEventListener('message', temporaryListener);
+    });
+
+    socketHandler.send(SocketAction.Ping);
+
+    return promise;
   }
 }
 
