@@ -16,7 +16,7 @@ class SocketHandler extends EventTarget {
     game.socket.on('module.sheet-o-scope', this.#onMessageReceived.bind(this));
   }
 
-  send(action: SocketAction, data: PopUpConfig): void {
+  send(action: SocketAction, data: SheetConfig): void {
     const game = getGame();
 
     const message = {

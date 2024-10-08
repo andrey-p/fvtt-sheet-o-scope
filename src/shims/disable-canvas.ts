@@ -1,4 +1,4 @@
-// overwrites Foundry settings to disable canvas rendering in the popup window
+// overwrites Foundry settings to disable canvas rendering in the secondary window
 // for a solid performance boost
 class DisableCanvasShim implements Shim {
   run() {

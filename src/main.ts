@@ -9,7 +9,7 @@ const url = window.location.toString();
 const windowMode = getWindowMode(url);
 
 // this module has two entry points, one for the main window
-// and one for the popup that this module opens
+// and one for the secondary window that this module opens
 if (windowMode === WindowMode.Main) {
   // the main window mostly just adds a detach button to the sheets
   new MainWindow();
