@@ -114,14 +114,14 @@ class MainWindow extends EventTarget {
     const socketHandler = this.#socketHandler;
 
     if (!socketHandler) {
-      throw new Error('Can\'t ping if socket handler isn\'t initialized!');
+      throw new Error("Can't ping if socket handler isn't initialized!");
     }
 
     // add a temporary listener to check that a ping comes back
     // within a 1s timeout
     //
     // contained in a single promise to keep things simple elsewhere
-    const promise = new Promise<boolean>(resolve => {
+    const promise = new Promise<boolean>((resolve) => {
       let timeout: ReturnType<typeof setTimeout>;
 
       const temporaryListener = ((event: SocketMessageEvent) => {

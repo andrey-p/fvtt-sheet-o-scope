@@ -13,7 +13,8 @@ import { getUserFlag, setUserFlag } from './utils/foundry';
 const SHEET_EXPIRY_TIMEOUT_MS = 5 * 60 * 1000; // 5 mins
 
 export function getNextOpenableSheets(): SheetConfig[] {
-  const allOpenableSheets = (getUserFlag('openableSheets') as SheetConfig[]) || [];
+  const allOpenableSheets =
+    (getUserFlag('openableSheets') as SheetConfig[]) || [];
   const validOpenableSheets: SheetConfig[] = [];
 
   log(`available sheets: [${allOpenableSheets.map((sheet) => sheet.id)}]`);
@@ -24,9 +25,11 @@ export function getNextOpenableSheets(): SheetConfig[] {
 
     // enforce sheet expiry - we don't want a failed sheet open
     // from 2 weeks ago to suddenly appear at today's session start
-    if (sheetConfig &&
-        sheetConfig.created &&
-        sheetConfig.created > Date.now() - SHEET_EXPIRY_TIMEOUT_MS) {
+    if (
+      sheetConfig &&
+      sheetConfig.created &&
+      sheetConfig.created > Date.now() - SHEET_EXPIRY_TIMEOUT_MS
+    ) {
       validOpenableSheets.push(sheetConfig);
     }
   }

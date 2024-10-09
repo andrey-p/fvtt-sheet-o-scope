@@ -73,7 +73,7 @@ class SecondaryWindow {
   #refreshSheets(): void {
     const sheetConfigs = getNextOpenableSheets();
 
-    sheetConfigs.forEach(sheetConfig => {
+    sheetConfigs.forEach((sheetConfig) => {
       this.#renderSheet(sheetConfig);
     });
   }
@@ -166,7 +166,7 @@ class SecondaryWindow {
 
   #closeSheet(id: string): void {
     log(`closing sheet with id: ${id}`);
-    const idx = this.#visibleSheets.findIndex(sheet => sheet.id === id);
+    const idx = this.#visibleSheets.findIndex((sheet) => sheet.id === id);
 
     if (idx === -1) {
       warn(`couldn't find sheet with id: ${id}`);
