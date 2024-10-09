@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   addOpenableSheet,
-  getNextOpenableSheet
+  getNextOpenableSheets
 } from '../../src/sheet-persistence';
 
 vi.mock('../../src/utils/foundry', () => {
@@ -22,21 +22,20 @@ describe('sheet-persistence', () => {
   });
 
   test('adding and removing sheets to storage', () => {
-    expect(getNextOpenableSheet()).toBeNull();
+    expect(getNextOpenableSheets()).toMatchObject([]);
 
     addOpenableSheet({ id: 'abc', type: 'actor' });
     addOpenableSheet({ id: 'def', type: 'journal' });
 
-    expect(getNextOpenableSheet()).toMatchObject({ id: 'abc', type: 'actor' });
-    expect(getNextOpenableSheet()).toMatchObject({
-      id: 'def',
-      type: 'journal'
-    });
-    expect(getNextOpenableSheet()).toBeNull();
+    expect(getNextOpenableSheets()).toMatchObject([
+      { id: 'abc', type: 'actor', created: expect.any(Number) },
+      { id: 'def', type: 'journal', created: expect.any(Number) }
+    ]);
+    expect(getNextOpenableSheets()).toMatchObject([]);
   });
 
   test('sheet expiry', () => {
-    expect(getNextOpenableSheet()).toBeNull();
+    expect(getNextOpenableSheets()).toMatchObject([]);
 
     addOpenableSheet({ id: 'abc', type: 'actor' });
 
@@ -45,10 +44,9 @@ describe('sheet-persistence', () => {
 
     addOpenableSheet({ id: 'def', type: 'journal' });
 
-    expect(getNextOpenableSheet()).toMatchObject({
-      id: 'def',
-      type: 'journal'
-    });
-    expect(getNextOpenableSheet()).toBeNull();
+    expect(getNextOpenableSheets()).toMatchObject([
+      { id: 'def', type: 'journal' }
+    ]);
+    expect(getNextOpenableSheets()).toMatchObject([]);
   });
 });
