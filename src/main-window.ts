@@ -86,14 +86,17 @@ class MainWindow extends EventTarget {
 
     const hasSecondaryWindow = await this.#isSecondaryWindowOpen();
 
-    if (!hasSecondaryWindow) {
+    // if a secondary window has already been opened,
+    // tell it to pull in the sheet just added
+    if (hasSecondaryWindow) {
+      this.#socketHandler?.send(SocketAction.Refresh);
+    } else {
+      // otherwise, open a new one - it'll pull the latest as it opens anyway
       window.open(
         `/game?sheetView=1`,
         `sheet-o-scope-secondary-${id}`,
         `popup=true,width=${+(width ?? 0) + 100},height=${+(height ?? 0) + 100}`
       );
-    } else {
-      console.log('window already open!!');
     }
   }
 

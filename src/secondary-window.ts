@@ -1,6 +1,6 @@
 import { log, warn } from './utils/logger';
 import { getEntitySheet } from './utils/foundry';
-import { getNextOpenableSheet } from './sheet-persistence';
+import { getNextOpenableSheets } from './sheet-persistence';
 
 import { EntityType, SocketAction } from './enums';
 
@@ -20,8 +20,11 @@ const shims = [
 class SecondaryWindow {
   #socketHandler?: SocketHandler;
   #isRenderedInPopup: boolean;
+  #visibleSheets: FormApplication[];
 
   constructor() {
+    this.#visibleSheets = [];
+
     // it's possible that this was opened from Foundry running in Electron
     // in which case it's opened as a large-size browser tab with full browser chrome, not a popup window
     // and a few of the special tweaks we want to do are unnecessary
@@ -29,7 +32,7 @@ class SecondaryWindow {
       !!window.opener && window.name.includes('sheet-o-scope');
 
     Hooks.once('init', this.#initialize.bind(this));
-    Hooks.once('ready', this.#renderSheet.bind(this));
+    Hooks.once('ready', this.#refreshSheets.bind(this));
 
     Hooks.on(
       'getActorSheetHeaderButtons',
@@ -65,14 +68,22 @@ class SecondaryWindow {
     });
   }
 
-  #renderSheet(): void {
-    const config = getNextOpenableSheet();
+  // pull in any new sheets that were added since the last time
+  // the secondary window refresh
+  #refreshSheets(): void {
+    const sheetConfigs = getNextOpenableSheets();
 
-    if (!config) {
+    sheetConfigs.forEach(sheetConfig => {
+      this.#renderSheet(sheetConfig);
+    });
+  }
+
+  #renderSheet(sheetConfig: SheetConfig): void {
+    if (!sheetConfig) {
       return;
     }
 
-    const { id, type } = config;
+    const { id, type } = sheetConfig;
     const sheet = getEntitySheet(id, type);
 
     if (sheet) {
@@ -95,6 +106,7 @@ class SecondaryWindow {
 
       log(`Opening sheet for ${type} with ID: ${id}`);
       sheet.render(true, options);
+      this.#visibleSheets.push(sheet);
     } else {
       warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
@@ -159,6 +171,8 @@ class SecondaryWindow {
     // respond to pings from the main window
     if (eventData.action === SocketAction.Ping) {
       this.#socketHandler?.send(SocketAction.PingAck);
+    } else if (eventData.action === SocketAction.Refresh) {
+      this.#refreshSheets();
     }
   }
 }
