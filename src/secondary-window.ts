@@ -128,9 +128,9 @@ class SecondaryWindow {
     sheet: DocumentSheet,
     buttons: Application.HeaderButton[]
   ): void {
-    const id = sheet.document.id;
+    const entityId = sheet.document.id;
 
-    if (!id) {
+    if (!entityId) {
       return;
     }
 
@@ -140,7 +140,7 @@ class SecondaryWindow {
 
     if (closeButton) {
       closeButton.onclick = () => {
-        window.close();
+        this.#closeSheet(sheet.id);
       };
     }
 
@@ -148,7 +148,7 @@ class SecondaryWindow {
     const reattachButton = new ReattachButton();
 
     reattachButton.onclick = () => {
-      this.#reattachSheet(type, id);
+      this.#reattachSheet(type, entityId, sheet.id);
     };
     buttons.unshift(reattachButton);
   }
@@ -159,10 +159,27 @@ class SecondaryWindow {
     }
   }
 
-  #reattachSheet(type: EntityType, id: string): void {
-    this.#socketHandler?.send(SocketAction.Reattach, { id, type });
+  #reattachSheet(type: EntityType, entityId: string, sheetId: string): void {
+    this.#socketHandler?.send(SocketAction.Reattach, { id: entityId, type });
+    this.#closeSheet(sheetId);
+  }
 
-    window.close();
+  #closeSheet(id: string): void {
+    log(`closing sheet with id: ${id}`);
+    const idx = this.#visibleSheets.findIndex(sheet => sheet.id === id);
+
+    if (idx === -1) {
+      warn(`couldn't find sheet with id: ${id}`);
+      return;
+    }
+
+    const sheet = this.#visibleSheets.splice(idx, 1)[0];
+    sheet.close();
+
+    // if this was the last visible sheet, close the secondary window
+    if (!this.#visibleSheets.length) {
+      window.close();
+    }
   }
 
   #onMessageReceived(event: SocketMessageEvent): void {
