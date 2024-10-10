@@ -1,11 +1,11 @@
-import { log, warn } from './utils/logger';
-import { getEntitySheet } from './utils/foundry';
-import { getNextOpenableSheets } from './sheet-persistence';
+import { log, warn } from '../utils/logger';
+import { getEntitySheet } from '../utils/foundry';
+import { getNextOpenableSheets } from '../sheet-persistence';
 
-import { EntityType, SocketAction } from './enums';
+import { EntityType, SocketAction } from '../enums';
 
-import SocketHandler from './socket-handler';
-import ReattachButton from './ui/reattach-button';
+import SocketHandler from '../socket-handler';
+import ReattachButton from '../ui/reattach-button';
 
 import BlockUnnecessaryNotificationsShim from './shims/block-unnecessary-notifications';
 import BlockUnnecessaryUiShim from './shims/block-unnecessary-ui';
