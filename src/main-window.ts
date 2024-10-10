@@ -95,7 +95,7 @@ class MainWindow extends EventTarget {
       window.open(
         `/game?sheetView=1`,
         `sheet-o-scope-secondary-${id}`,
-        `popup=true,width=${+(width ?? 0) + 100},height=${+(height ?? 0) + 100}`
+        `popup=true,width=${width},height=${height}`
       );
     }
   }

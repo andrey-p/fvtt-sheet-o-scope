@@ -5,6 +5,7 @@ import { getNextOpenableSheets } from '../sheet-persistence';
 import { EntityType, SocketAction } from '../enums';
 
 import SocketHandler from '../socket-handler';
+import LayoutGenerator from './layout-generator';
 import ReattachButton from '../ui/reattach-button';
 
 import BlockUnnecessaryNotificationsShim from './shims/block-unnecessary-notifications';
@@ -19,6 +20,8 @@ const shims = [
 
 class SecondaryWindow {
   #socketHandler?: SocketHandler;
+  #layoutGenerator: LayoutGenerator;
+
   #isRenderedInPopup: boolean;
   #visibleSheets: FormApplication[];
 
@@ -30,6 +33,11 @@ class SecondaryWindow {
     // and a few of the special tweaks we want to do are unnecessary
     this.#isRenderedInPopup =
       !!window.opener && window.name.includes('sheet-o-scope');
+
+    this.#layoutGenerator = new LayoutGenerator(
+      { width: window.innerWidth, height: window.innerHeight },
+      window.screen.availWidth
+    );
 
     Hooks.once('init', this.#initialize.bind(this));
     Hooks.once('ready', this.#refreshSheets.bind(this));
@@ -69,16 +77,35 @@ class SecondaryWindow {
   }
 
   // pull in any new sheets that were added since the last time
-  // the secondary window refresh
-  #refreshSheets(): void {
+  // the secondary window refreshed
+  async #refreshSheets(): Promise<void> {
     const sheetConfigs = getNextOpenableSheets();
 
-    sheetConfigs.forEach((sheetConfig) => {
-      this.#renderSheet(sheetConfig);
+    const renderPromises = sheetConfigs.map((sheetConfig) => {
+      return this.#renderSheet(sheetConfig);
     });
+    await Promise.all(renderPromises);
   }
 
-  #renderSheet(sheetConfig: SheetConfig): void {
+  async #relayoutSheets(): Promise<void> {
+    const layout = this.#layoutGenerator.getLayout(this.#visibleSheets);
+
+    window.resizeTo(layout.viewport.width, layout.viewport.height);
+
+    const positionPromises = this.#visibleSheets.map((sheet, i) => {
+      const { x, y, width, height } = layout.sheets[i];
+
+      return sheet.setPosition({
+        left: x,
+        top: y,
+        width,
+        height
+      });
+    });
+    await Promise.all(positionPromises);
+  }
+
+  async #renderSheet(sheetConfig: SheetConfig): Promise<void> {
     if (!sheetConfig) {
       return;
     }
@@ -89,15 +116,31 @@ class SecondaryWindow {
     if (sheet) {
       const options: any = {};
 
+      // the sheet needs to know its position as its rendered
+      // otherwise it can only be repositioned after a delay
+      // hence we need to calculate its position ASAP
+      this.#visibleSheets.push(sheet);
+      const layout = this.#layoutGenerator.getLayout(this.#visibleSheets);
+      const thisSheetLayout = layout.sheets.pop();
+
+      if (thisSheetLayout) {
+        options.left = thisSheetLayout.x;
+        options.right = thisSheetLayout.y;
+        options.width = thisSheetLayout.width;
+        options.height = thisSheetLayout.height;
+      }
+
       // if this view is actually showing in a popup,
       // resizing it is done via the window
       if (this.#isRenderedInPopup) {
         options.resizable = false;
 
+        /*
         window.addEventListener(
           'resize',
           this.#onWindowResize.bind(this, sheet)
         );
+       */
       }
 
       // in e.g. electron, this view will show in a new browser window
@@ -105,13 +148,13 @@ class SecondaryWindow {
       options.minimizable = false;
 
       log(`Opening sheet for ${type} with ID: ${id}`);
-      sheet.render(true, options);
-      this.#visibleSheets.push(sheet);
+      await sheet.render(true, options);
     } else {
       warn(`Couldn't find sheet for ${type} with ID: ${id}`);
     }
   }
 
+  /*
   #onWindowResize(sheet: FormApplication | null | undefined): void {
     if (!sheet) {
       return;
@@ -122,6 +165,7 @@ class SecondaryWindow {
       height: window.innerHeight
     });
   }
+ */
 
   #modifySheetHeaderButtons(
     type: EntityType,
@@ -179,6 +223,8 @@ class SecondaryWindow {
     // if this was the last visible sheet, close the secondary window
     if (!this.#visibleSheets.length) {
       window.close();
+    } else {
+      this.#relayoutSheets();
     }
   }
 

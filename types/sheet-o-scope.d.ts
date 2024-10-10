@@ -1,5 +1,17 @@
 /// <reference types="vite/client" />
 
+type Rect = {
+  x?: number;
+  y?: number;
+  width: number;
+  height: number;
+};
+
+type SecondaryWindowLayout = {
+  viewport: Rect;
+  sheets: Rect[];
+};
+
 type SheetConfig = {
   id: string;
   type: EntityType;
