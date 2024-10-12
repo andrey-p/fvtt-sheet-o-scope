@@ -26,9 +26,7 @@ class MainWindow extends EventTarget {
     // bother the GM until it's installed and enabled,
     // otherwise sheet-o-scope can't do its thing
     if (!game.modules.get('lib-wrapper')?.active && game.user?.isGM) {
-      ui.notifications?.error(
-        'Module sheet-o-scope requires the "libWrapper" module. Please install and activate it.'
-      );
+      ui.notifications?.error(l('SHEET-O-SCOPE.noLibWrapperWarning'));
 
       return;
     }
