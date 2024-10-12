@@ -8,7 +8,6 @@ export function getGame() {
   return game as Game;
 }
 
-// TODO fix this to be a documentsheet?
 export function getEntitySheet(
   id: string,
   type: EntityType

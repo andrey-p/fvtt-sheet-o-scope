@@ -91,32 +91,36 @@ class MainWindow extends EventTarget {
       return;
     }
 
+    // persist the sheet, and close it in this window
     await addOpenableSheet({ id, type });
 
     sheet.close();
 
     const hasSecondaryWindow = await this.#isSecondaryWindowOpen();
 
-    // if a secondary window has already been opened,
+    // if the secondary window has already been opened,
     // tell it to pull in the sheet just added
     if (hasSecondaryWindow) {
       this.#socketHandler?.send(SocketAction.Refresh);
     } else if (this.#waitingOnFirstPingBack) {
-      // annoying - I can't see a reason why opening multiple sheets would be an issue
-      // - the secondary window _should_ be able to just pull the latest as soon as it's ready
+      // annoying...
       //
-      // it looks like an old flag is pulled in when the secondary window renders,
-      // but it's too niche of an issue to try and get to the bottom of...
+      // I can't see a reason why opening multiple sheets while the secondary window is loading
+      // would be an issue - it _should_ be able to just pull the latest as soon as it's ready
+      //
+      // it looks like the secondary window pulls in just the first sheet when it calls getOpenableSheets()
+      // so it's possible that it's lost when persisted via Foundry's setFlag()
+      //
+      // this is way too niche of an issue to spend a lot of time on debugging,
+      // so at the very least give the user a heads up
       ui.notifications?.error(l('SHEET-O-SCOPE.loadingDetachWarning'));
-
-      log(
-        LogType.Warn,
-        'Sheet open delayed, waiting for secondary window to be ready...'
-      );
     } else {
-      // secondary window is unresponsive and we've not tried to open it recently
-      // either this is the first open since logging in,
-      // or the secondary window has been closed
+      // secondary window is unresponsive and we don't think it's currently loading
+      //
+      // either this is the first time we've opened it this session,
+      // or the secondary window has been closed at some point
+      //
+      // either way, go ahead and open it
       this.#waitingOnFirstPingBack = true;
 
       window.open(

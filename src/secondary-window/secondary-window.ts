@@ -150,8 +150,13 @@ class SecondaryWindow {
     this.#log(LogType.Log, `number of sheets: ${layout.sheets.length}`);
 
     this.#relayoutInProgress = true;
+
+    // resize the window based on whatever the layoutGenerator
+    // thinks would work the best
     this.#resizeSecondaryWindow(layout.viewport);
 
+    // reposition each of the visible sheets based on what layoutGenerator
+    // thinks would work the best
     const positionPromises = this.#visibleSheets.map((sheet, i) => {
       const { x, y, width, height } = layout.sheets[i];
 
@@ -164,9 +169,9 @@ class SecondaryWindow {
         });
       } catch (e: any) {
         // this will likely fire with any newly added sheet...
-        // even though we've waited until the render() promises has resolved,
-        // it still looks like the relevant sheet hasn't been added to the DOM
-        // which means repositioning the sheet errors out
+        // even though we've waited until the render() promise has resolved,
+        // it still looks like the relevant sheet hasn't been added to the DOM yet
+        // which leads to an uncaught error in setPosition()
         this.#log(
           LogType.Warn,
           `Couldn't reposition sheet ${sheet.id}: ${e.message}`
@@ -216,6 +221,7 @@ class SecondaryWindow {
       options.minimizable = false;
 
       this.#log(LogType.Log, `Opening sheet for ${type} with ID: ${id}`);
+      // `true` forces the sheet to display if it's not visible already
       await sheet.render(true, options);
     } else {
       this.#log(LogType.Warn, `Couldn't find sheet for ${type} with ID: ${id}`);
@@ -228,19 +234,23 @@ class SecondaryWindow {
       return;
     }
 
-    this.#log(
-      LogType.Log,
-      'secondary window manually resized - it will no longer be automatically resized by this module'
-    );
-
+    // register the fact that the user has manually resized the secondary window -
+    // this likely means that they want it in a specific way,
+    // and further resizes will likely be very annoying
     this.#layoutGenerator.resizeViewport({
       width: window.innerWidth,
       height: window.innerHeight
     });
 
+    this.#log(
+      LogType.Log,
+      'secondary window manually resized - it will no longer be automatically resized by this module'
+    );
+
     this.#relayoutSheets();
   }
 
+  // tweak the buttons that appear at the top of each sheet in the secondary screen
   #modifySheetHeaderButtons(
     type: EntityType,
     sheet: DocumentSheet,
@@ -271,6 +281,7 @@ class SecondaryWindow {
     buttons.unshift(reattachButton);
   }
 
+  // tweak the sheet itself
   #modifySheet(_sheet: DocumentSheet, elems: Element[]): void {
     if (this.#isRenderedInPopup) {
       elems[0].classList.add('secondary-window-sheet');
@@ -278,6 +289,7 @@ class SecondaryWindow {
   }
 
   #reattachSheet(type: EntityType, entityId: string, sheetId: string): void {
+    this.#log(LogType.Log, `reattaching sheet with id: ${sheetId}`);
     this.#socketHandler?.send(SocketAction.Reattach, { id: entityId, type });
     this.#closeSheet(sheetId);
   }
@@ -302,9 +314,10 @@ class SecondaryWindow {
     }
   }
 
+  // send any logs to the main window
   #log(type: LogType, message: string): void {
-    // sending these to main window to make logging in the secondary window
-    // less dependent on having 2 devtools open
+    // this makes debugging things less dependent
+    // on having 2 instances of the devtools open
     this.#socketHandler?.send(SocketAction.Log, { type, message });
   }
 
@@ -315,6 +328,7 @@ class SecondaryWindow {
     if (eventData.action === SocketAction.Ping) {
       this.#socketHandler?.send(SocketAction.PingBack);
     } else if (eventData.action === SocketAction.Refresh) {
+      // refresh the visible sheets when the main window asks
       this.#refreshSheets();
     }
   }
