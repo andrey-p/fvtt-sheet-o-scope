@@ -44,7 +44,7 @@ class SecondaryWindow {
     this.#relayoutInProgress = false;
 
     Hooks.once('init', this.#initialize.bind(this));
-    Hooks.once('ready', this.#refreshSheets.bind(this));
+    Hooks.once('ready', this.#ready.bind(this));
 
     Hooks.on(
       'getActorSheetHeaderButtons',
@@ -79,16 +79,26 @@ class SecondaryWindow {
   }
 
   #initialize(): void {
+    // mild hacks that make the UX a bit nicer
+    // that need to execute as early as possible
+    shims.forEach((Shim) => {
+      const shim = new Shim();
+      shim.run();
+    });
+  }
+
+  async #ready(): Promise<void> {
     this.#socketHandler = new SocketHandler();
     this.#socketHandler.addEventListener(
       'message',
       this.#onMessageReceived.bind(this) as EventListener
     );
 
-    shims.forEach((Shim) => {
-      const shim = new Shim();
-      shim.run();
-    });
+    // tell the main window that this one is ready for business...
+    this.#socketHandler.send(SocketAction.PingBack);
+
+    // ... and render any sheets that have been added to the list up to this point
+    this.#refreshSheets();
   }
 
   #resizeSecondaryWindow(targetViewport: Rect): void {
@@ -290,7 +300,7 @@ class SecondaryWindow {
 
     // respond to pings from the main window
     if (eventData.action === SocketAction.Ping) {
-      this.#socketHandler?.send(SocketAction.PingAck);
+      this.#socketHandler?.send(SocketAction.PingBack);
     } else if (eventData.action === SocketAction.Refresh) {
       this.#refreshSheets();
     }

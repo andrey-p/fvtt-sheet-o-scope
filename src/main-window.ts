@@ -1,5 +1,5 @@
 import { log } from './utils/logger';
-import { getGame, getEntitySheet } from './utils/foundry';
+import { getGame, getEntitySheet, l } from './utils/foundry';
 import { addOpenableSheet } from './sheet-persistence';
 
 import { EntityType, SocketAction, LogType } from './enums';
@@ -9,9 +9,12 @@ import DetachButton from './ui/detach-button.ts';
 
 class MainWindow extends EventTarget {
   #socketHandler?: SocketHandler;
+  #waitingOnFirstPingBack?: boolean;
 
   constructor() {
     super();
+
+    this.#waitingOnFirstPingBack = false;
 
     Hooks.once('ready', this.#initialize.bind(this));
   }
@@ -56,7 +59,12 @@ class MainWindow extends EventTarget {
     const eventData = event.data;
 
     if (eventData.action === SocketAction.Reattach) {
+      // the secondary window has requested that a sheet gets reopened
+      // in the main window
       this.#reattachSheet(eventData.data as SheetConfig);
+    } else if (eventData.action === SocketAction.PingBack) {
+      // the secondary window is ready to communicate
+      this.#waitingOnFirstPingBack = false;
     } else if (eventData.action === SocketAction.Log) {
       // sending these to main window to make logging in the secondary window
       // less dependent on having 2 devtools open
@@ -95,8 +103,24 @@ class MainWindow extends EventTarget {
     // tell it to pull in the sheet just added
     if (hasSecondaryWindow) {
       this.#socketHandler?.send(SocketAction.Refresh);
+    } else if (this.#waitingOnFirstPingBack) {
+      // annoying - I can't see a reason why opening multiple sheets would be an issue
+      // - the secondary window _should_ be able to just pull the latest as soon as it's ready
+      //
+      // it looks like an old flag is pulled in when the secondary window renders,
+      // but it's too niche of an issue to try and get to the bottom of...
+      ui.notifications?.error(l('SHEET-O-SCOPE.loadingDetachWarning'));
+
+      log(
+        LogType.Warn,
+        'Sheet open delayed, waiting for secondary window to be ready...'
+      );
     } else {
-      // otherwise, open a new one - it'll pull the latest as it opens anyway
+      // secondary window is unresponsive and we've not tried to open it recently
+      // either this is the first open since logging in,
+      // or the secondary window has been closed
+      this.#waitingOnFirstPingBack = true;
+
       window.open(
         `/game?sheetView=1`,
         `sheet-o-scope-secondary-${id}`,
@@ -130,7 +154,7 @@ class MainWindow extends EventTarget {
       let timeout: ReturnType<typeof setTimeout>;
 
       const temporaryListener = ((event: SocketMessageEvent) => {
-        if (event.data.action === SocketAction.PingAck) {
+        if (event.data.action === SocketAction.PingBack) {
           socketHandler.removeEventListener('message', temporaryListener);
           clearTimeout(timeout);
           resolve(true);

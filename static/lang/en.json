@@ -1,6 +1,7 @@
 {
   "SHEET-O-SCOPE": {
     "detach": "Detach",
-    "reattach": "Reattach"
+    "reattach": "Reattach",
+    "loadingDetachWarning": "Please wait until the Sheet-o-scope window has loaded before detaching another sheet."
   }
 }

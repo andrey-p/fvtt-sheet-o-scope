@@ -54,3 +54,8 @@ export async function setUserFlag(key: string, val: any): Promise<void> {
     await thisUser.setFlag('sheet-o-scope', key, JSON.stringify(val));
   }
 }
+
+export function l(key: string): string {
+  const game = getGame();
+  return game.i18n.localize(key);
+}
