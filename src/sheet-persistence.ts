@@ -13,7 +13,7 @@ const SHEET_EXPIRY_TIMEOUT_MS = 5 * 60 * 1000; // 5 mins
 
 export async function getNextOpenableSheets(): Promise<SheetConfig[]> {
   const allOpenableSheets =
-    (await getUserFlag('openableSheets') as SheetConfig[]) || [];
+    ((await getUserFlag('openableSheets')) as SheetConfig[]) || [];
   const validOpenableSheets: SheetConfig[] = [];
 
   let sheetConfig: SheetConfig | undefined;
@@ -36,8 +36,12 @@ export async function getNextOpenableSheets(): Promise<SheetConfig[]> {
   return validOpenableSheets;
 }
 
-export async function addOpenableSheet(sheetConfig: SheetConfig): Promise<void> {
-  let openableSheets = await getUserFlag('openableSheets') as SheetConfig[] | null;
+export async function addOpenableSheet(
+  sheetConfig: SheetConfig
+): Promise<void> {
+  let openableSheets = (await getUserFlag('openableSheets')) as
+    | SheetConfig[]
+    | null;
 
   sheetConfig.created = Date.now();
 

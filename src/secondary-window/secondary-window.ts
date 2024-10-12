@@ -167,7 +167,10 @@ class SecondaryWindow {
         // even though we've waited until the render() promises has resolved,
         // it still looks like the relevant sheet hasn't been added to the DOM
         // which means repositioning the sheet errors out
-        this.#log(LogType.Warn, `Couldn't reposition sheet ${sheet.id}: ${e.message}`);
+        this.#log(
+          LogType.Warn,
+          `Couldn't reposition sheet ${sheet.id}: ${e.message}`
+        );
       }
 
       return Promise.resolve();
