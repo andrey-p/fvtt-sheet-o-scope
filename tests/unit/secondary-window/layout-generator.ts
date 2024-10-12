@@ -91,4 +91,41 @@ describe('secondary-window/layout-generator', () => {
       });
     });
   });
+  describe('getLayout - resizing', () => {
+    test('resizing the secondary window should prevent it from changing size automatically again', () => {
+      const layoutGenerator = new LayoutGenerator(
+        { width: 500, height: 700 },
+        1200
+      );
+      const sheets = [
+        { options: { width: 600, height: 800 } },
+        { options: { width: 200, height: 300 } },
+        { options: { width: 700, height: 1000 } }
+      ];
+
+      let layout = layoutGenerator.getLayout(sheets);
+
+      expect(layout.viewport.width).toBe(1200);
+      expect(layout.viewport.height).toBe(700);
+      layout.sheets.forEach((sheet) => {
+        expect(sheet.height).toBe(700);
+      });
+
+      layoutGenerator.resizeViewport({
+        width: 600,
+        height: 800
+      });
+
+      // the layout should now stick with whatever new viewport dimensions
+      // the user chose...
+      layout = layoutGenerator.getLayout(sheets);
+      expect(layout.viewport.width).toBe(600);
+      expect(layout.viewport.height).toBe(800);
+
+      // ... but the individual sheets should still conform to the overall height
+      layout.sheets.forEach((sheet) => {
+        expect(sheet.height).toBe(800);
+      });
+    });
+  });
 });

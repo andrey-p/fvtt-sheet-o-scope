@@ -24,6 +24,7 @@ class SecondaryWindow {
   #layoutGenerator: LayoutGenerator;
 
   #isRenderedInPopup: boolean;
+  #relayoutInProgress: boolean;
   #visibleSheets: FormApplication[];
 
   constructor() {
@@ -39,6 +40,8 @@ class SecondaryWindow {
       { width: window.innerWidth, height: window.innerHeight },
       window.screen.availWidth
     );
+
+    this.#relayoutInProgress = false;
 
     Hooks.once('init', this.#initialize.bind(this));
     Hooks.once('ready', this.#refreshSheets.bind(this));
@@ -63,6 +66,9 @@ class SecondaryWindow {
     // add a CSS hook to the body for all sorts of minor CSS tweaks
     document.querySelector('body')?.classList.add('sheet-o-scope-secondary');
 
+    const throttledWindowResize = foundry.utils.throttle(this.#onWindowResize, 1000).bind(this);
+    window.addEventListener('resize', throttledWindowResize);
+
     if (isDev) {
       window.addEventListener('error', (event) => {
         this.#log(LogType.Error, event.message);
@@ -83,6 +89,21 @@ class SecondaryWindow {
     });
   }
 
+  #resizeSecondaryWindow(targetViewport: Rect): void {
+    if (window.innerWidth === targetViewport.width && window.innerHeight === targetViewport.height) {
+      return;
+    }
+
+    this.#log(LogType.Log, 'resizing secondary window');
+
+    // window.resizeTo() only takes the outer window dimensions
+    // so we need to add the current window chrome to get the size we want
+    const targetWidth = targetViewport.width + window.outerWidth - window.innerWidth;
+    const targetHeight = targetViewport.height + window.outerHeight - window.innerHeight;
+
+    window.resizeTo(targetWidth, targetHeight);
+  }
+
   // pull in any new sheets that were added since the last time
   // the secondary window refreshed
   async #refreshSheets(): Promise<void> {
@@ -92,12 +113,19 @@ class SecondaryWindow {
       return this.#renderSheet(sheetConfig);
     });
     await Promise.all(renderPromises);
+
+    this.#relayoutSheets();
   }
 
   async #relayoutSheets(): Promise<void> {
     const layout = this.#layoutGenerator.getLayout(this.#visibleSheets);
 
-    window.resizeTo(layout.viewport.width, layout.viewport.height);
+    this.#log(LogType.Log, 'starting relayout...');
+    this.#log(LogType.Log, `secondary window dimensions: ${layout.viewport.width}x${layout.viewport.height}`);
+    this.#log(LogType.Log, `number of sheets: ${layout.sheets.length}`);
+
+    this.#relayoutInProgress = true;
+    this.#resizeSecondaryWindow(layout.viewport);
 
     const positionPromises = this.#visibleSheets.map((sheet, i) => {
       const { x, y, width, height } = layout.sheets[i];
@@ -110,6 +138,8 @@ class SecondaryWindow {
       });
     });
     await Promise.all(positionPromises);
+
+    this.#relayoutInProgress = false;
   }
 
   async #renderSheet(sheetConfig: SheetConfig): Promise<void> {
@@ -141,13 +171,6 @@ class SecondaryWindow {
       // resizing it is done via the window
       if (this.#isRenderedInPopup) {
         options.resizable = false;
-
-        /*
-        window.addEventListener(
-          'resize',
-          this.#onWindowResize.bind(this, sheet)
-        );
-       */
       }
 
       // in e.g. electron, this view will show in a new browser window
@@ -161,18 +184,21 @@ class SecondaryWindow {
     }
   }
 
-  /*
-  #onWindowResize(sheet: FormApplication | null | undefined): void {
-    if (!sheet) {
+  #onWindowResize(): void {
+    // don't cause an infinite relayout loop, silly
+    if (this.#relayoutInProgress) {
       return;
     }
 
-    sheet.setPosition({
+    this.#log(LogType.Log, 'secondary window manually resized - it will no longer be automatically resized by this module');
+
+    this.#layoutGenerator.resizeViewport({
       width: window.innerWidth,
       height: window.innerHeight
     });
+
+    this.#relayoutSheets();
   }
- */
 
   #modifySheetHeaderButtons(
     type: EntityType,
