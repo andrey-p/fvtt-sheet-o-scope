@@ -188,7 +188,7 @@ class SecondaryWindow {
     if (sheet) {
       const options: any = {};
 
-      // the sheet needs to know its position as its rendered
+      // the sheet needs to know its position as it's rendered
       // otherwise it can only be repositioned after a delay
       // hence we need to calculate its position ASAP
       this.#visibleSheets.push(sheet);
