@@ -155,12 +155,22 @@ class SecondaryWindow {
     const positionPromises = this.#visibleSheets.map((sheet, i) => {
       const { x, y, width, height } = layout.sheets[i];
 
-      return sheet.setPosition({
-        left: x,
-        top: y,
-        width,
-        height
-      });
+      try {
+        return sheet.setPosition({
+          left: x,
+          top: y,
+          width,
+          height
+        });
+      } catch (e: any) {
+        // this will likely fire with any newly added sheet...
+        // even though we've waited until the render() promises has resolved,
+        // it still looks like the relevant sheet hasn't been added to the DOM
+        // which means repositioning the sheet errors out
+        this.#log(LogType.Warn, `Couldn't reposition sheet ${sheet.id}: ${e.message}`);
+      }
+
+      return Promise.resolve();
     });
     await Promise.all(positionPromises);
 
