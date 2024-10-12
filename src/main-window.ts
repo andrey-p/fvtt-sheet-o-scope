@@ -2,7 +2,7 @@ import { log } from './utils/logger';
 import { getGame, getEntitySheet } from './utils/foundry';
 import { addOpenableSheet } from './sheet-persistence';
 
-import { EntityType, SocketAction } from './enums';
+import { EntityType, SocketAction, LogType } from './enums';
 
 import SocketHandler from './socket-handler.ts';
 import DetachButton from './ui/detach-button.ts';
@@ -30,7 +30,7 @@ class MainWindow extends EventTarget {
       return;
     }
 
-    log('Setting up changes to main window');
+    log(LogType.Log, 'Setting up changes to main window');
 
     Hooks.on(
       'getActorSheetHeaderButtons',
@@ -57,6 +57,11 @@ class MainWindow extends EventTarget {
 
     if (eventData.action === SocketAction.Reattach) {
       this.#reattachSheet(eventData.data as SheetConfig);
+    } else if (eventData.action === SocketAction.Log) {
+      // sending these to main window to make logging in the secondary window
+      // less dependent on having 2 devtools open
+      const logData = eventData.data as Log;
+      log(logData.type, `[SECONDARY] | ${logData.message}`);
     }
   }
 

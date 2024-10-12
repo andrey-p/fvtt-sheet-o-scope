@@ -1,4 +1,3 @@
-import { log } from './utils/logger';
 import { getUserFlag, setUserFlag } from './utils/foundry';
 
 // Module that persists openable sheets using the Foundry flag feature
@@ -16,8 +15,6 @@ export function getNextOpenableSheets(): SheetConfig[] {
   const allOpenableSheets =
     (getUserFlag('openableSheets') as SheetConfig[]) || [];
   const validOpenableSheets: SheetConfig[] = [];
-
-  log(`available sheets: [${allOpenableSheets.map((sheet) => sheet.id)}]`);
 
   let sheetConfig: SheetConfig | undefined;
   while (allOpenableSheets.length) {
@@ -49,8 +46,6 @@ export function addOpenableSheet(sheetConfig: SheetConfig) {
   } else {
     openableSheets = [sheetConfig];
   }
-
-  log(`sheets now: [${openableSheets.map((sheetConfig) => sheetConfig.id)}]`);
 
   setUserFlag('openableSheets', openableSheets);
 }

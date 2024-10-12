@@ -12,13 +12,18 @@ type SecondaryWindowLayout = {
   sheets: Rect[];
 };
 
+type Log = {
+  type: LogType,
+  message: string
+};
+
 type SheetConfig = {
   id: string;
   type: EntityType;
   created?: number;
 };
 
-type SocketMessagePayload = SheetConfig | null;
+type SocketMessagePayload = SheetConfig | Log | null;
 
 type SocketMessage = {
   sender: string;

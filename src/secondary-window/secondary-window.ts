@@ -1,8 +1,7 @@
-import { log, warn } from '../utils/logger';
 import { getEntitySheet } from '../utils/foundry';
 import { getNextOpenableSheets } from '../sheet-persistence';
 
-import { EntityType, SocketAction } from '../enums';
+import { EntityType, SocketAction, LogType } from '../enums';
 
 import SocketHandler from '../socket-handler';
 import LayoutGenerator from './layout-generator';
@@ -11,6 +10,8 @@ import ReattachButton from '../ui/reattach-button';
 import BlockUnnecessaryNotificationsShim from './shims/block-unnecessary-notifications';
 import BlockUnnecessaryUiShim from './shims/block-unnecessary-ui';
 import DisableCanvasShim from './shims/disable-canvas';
+
+const isDev = import.meta.env.MODE === 'dev';
 
 const shims = [
   BlockUnnecessaryNotificationsShim,
@@ -61,6 +62,12 @@ class SecondaryWindow {
 
     // add a CSS hook to the body for all sorts of minor CSS tweaks
     document.querySelector('body')?.classList.add('sheet-o-scope-secondary');
+
+    if (isDev) {
+      window.addEventListener('error', (event) => {
+        this.#log(LogType.Error, event.message);
+      });
+    }
   }
 
   #initialize(): void {
@@ -147,10 +154,10 @@ class SecondaryWindow {
       // where being able to minimize it is still irrelevant
       options.minimizable = false;
 
-      log(`Opening sheet for ${type} with ID: ${id}`);
+      this.#log(LogType.Log, `Opening sheet for ${type} with ID: ${id}`);
       await sheet.render(true, options);
     } else {
-      warn(`Couldn't find sheet for ${type} with ID: ${id}`);
+      this.#log(LogType.Warn, `Couldn't find sheet for ${type} with ID: ${id}`);
     }
   }
 
@@ -209,11 +216,11 @@ class SecondaryWindow {
   }
 
   #closeSheet(id: string): void {
-    log(`closing sheet with id: ${id}`);
+    this.#log(LogType.Log, `closing sheet with id: ${id}`);
     const idx = this.#visibleSheets.findIndex((sheet) => sheet.id === id);
 
     if (idx === -1) {
-      warn(`couldn't find sheet with id: ${id}`);
+      this.#log(LogType.Warn, `couldn't find sheet with id: ${id}`);
       return;
     }
 
@@ -226,6 +233,12 @@ class SecondaryWindow {
     } else {
       this.#relayoutSheets();
     }
+  }
+
+  #log(type: LogType, message: string): void {
+    // sending these to main window to make logging in the secondary window
+    // less dependent on having 2 devtools open
+    this.#socketHandler?.send(SocketAction.Log, { type, message });
   }
 
   #onMessageReceived(event: SocketMessageEvent): void {
