@@ -66,7 +66,9 @@ class SecondaryWindow {
     // add a CSS hook to the body for all sorts of minor CSS tweaks
     document.querySelector('body')?.classList.add('sheet-o-scope-secondary');
 
-    const throttledWindowResize = foundry.utils.throttle(this.#onWindowResize, 1000).bind(this);
+    const throttledWindowResize = foundry.utils
+      .throttle(this.#onWindowResize, 1000)
+      .bind(this);
     window.addEventListener('resize', throttledWindowResize);
 
     if (isDev) {
@@ -90,7 +92,10 @@ class SecondaryWindow {
   }
 
   #resizeSecondaryWindow(targetViewport: Rect): void {
-    if (window.innerWidth === targetViewport.width && window.innerHeight === targetViewport.height) {
+    if (
+      window.innerWidth === targetViewport.width &&
+      window.innerHeight === targetViewport.height
+    ) {
       return;
     }
 
@@ -98,8 +103,10 @@ class SecondaryWindow {
 
     // window.resizeTo() only takes the outer window dimensions
     // so we need to add the current window chrome to get the size we want
-    const targetWidth = targetViewport.width + window.outerWidth - window.innerWidth;
-    const targetHeight = targetViewport.height + window.outerHeight - window.innerHeight;
+    const targetWidth =
+      targetViewport.width + window.outerWidth - window.innerWidth;
+    const targetHeight =
+      targetViewport.height + window.outerHeight - window.innerHeight;
 
     window.resizeTo(targetWidth, targetHeight);
   }
@@ -121,7 +128,10 @@ class SecondaryWindow {
     const layout = this.#layoutGenerator.getLayout(this.#visibleSheets);
 
     this.#log(LogType.Log, 'starting relayout...');
-    this.#log(LogType.Log, `secondary window dimensions: ${layout.viewport.width}x${layout.viewport.height}`);
+    this.#log(
+      LogType.Log,
+      `secondary window dimensions: ${layout.viewport.width}x${layout.viewport.height}`
+    );
     this.#log(LogType.Log, `number of sheets: ${layout.sheets.length}`);
 
     this.#relayoutInProgress = true;
@@ -190,7 +200,10 @@ class SecondaryWindow {
       return;
     }
 
-    this.#log(LogType.Log, 'secondary window manually resized - it will no longer be automatically resized by this module');
+    this.#log(
+      LogType.Log,
+      'secondary window manually resized - it will no longer be automatically resized by this module'
+    );
 
     this.#layoutGenerator.resizeViewport({
       width: window.innerWidth,

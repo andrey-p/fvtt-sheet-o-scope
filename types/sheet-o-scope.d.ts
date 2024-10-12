@@ -13,8 +13,8 @@ type SecondaryWindowLayout = {
 };
 
 type Log = {
-  type: LogType,
-  message: string
+  type: LogType;
+  message: string;
 };
 
 type SheetConfig = {
