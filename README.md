@@ -3,7 +3,15 @@ Sheet-o-scope
 
 This is a [Foundry VTT](https://foundryvtt.com/) module for looking at Foundry sheets in a window other than the main one.
 
-Currently, it allows for a sheet to be viewed in a popup, similar to the excellent PopOut! module.
+Sheet-o-scope allows for various types of sheets to be detached from the main Foundry window, and sent to a separate popup that you can move to a second monitor. This leaves your main Foundry screen nice and decluttered - extra handy if you're a GM running a complicated encounter!
+
+Currently, the following types of sheets can be detached:
+
+- actor sheets (that is: character sheets, NPC sheets, etc)
+- journals
+- item sheets
+
+If you want any other types supported, drop an issue in the tracker.
 
 A longer term goal is for it to be a generic way of viewing sheets on any secondary window (e.g. in-person games where the scene is viewed on a large monitor, and players can look at their own character sheets on mobile devices).
 
@@ -31,42 +39,40 @@ https://raw.githubusercontent.com/andrey-p/fvtt-sheet-o-scope/main/dist/module.j
 Sheet-o-scope vs PopOut!
 ---
 
-Sheet-o-scope works differently to PopOut! so it comes with a few pros and cons in comparison.
+Sheet-o-scope is very similar to, but not quite the same as, the excellent PopOut! module.
+
+One of the main differences is, Sheet-o-scope sends all of the popped out sheets to a single popup, whereas PopOut! creates a single popup per detached sheet.
+
+Apart from that, Sheet-o-scope is implemented very differently to PopOut! so it comes with a few pros and cons in comparison.
 
 Pros:
 
-- it supports sheets that PopOut! doesn't work fully with (e.g. PF2e)
-- it works with Firefox (which is what I'm using to develop it with)
-- it works when running Foundry VTT locally as an Electron application (with a number of caveats - see below)
+- it has better support for sheets for systems that PopOut! doesn't (e.g. PF2e)
+- it has better support for browsers that Foundry supports, but PopOut! doesn't (e.g. Firefox)
 
 Cons:
 
-- it's slower to open
-- it's generally heavier
+- it's much slower to open the first time round, and generally uses more resources
+- it currently supports a narrower range of sheet types
 
 If PopOut! works for your specific use case, you may want to consider sticking with it.
 
-In the way of a more technical explanation: PopOut! works by duplicating the DOM of a sheet in a separate popup window, which allows it to only copy what it needs. However, it cannot copy things outside of the sheet's DOM, which makes things break.
+### In the way of a more technical explanation
+
+PopOut! works by duplicating the DOM of a sheet in a separate popup window, which allows it to only copy what it needs, keeping things super light. However, it cannot copy things outside of the sheet's DOM, which makes things break.
 
 Sheet-o-scope works by opening a second instance of Foundry VTT in a popup, then attempting to pare it down as much as possible (e.g. by forcing `noCanvas` mode). Sheet-o-scope's maximalist approach is what makes it support more use cases, and makes it heftier at the same time.
 
-Caveats for users running Foundry locally via the Electron app
+Both of these go against a central assumption that Foundry VTT has (i.e. that a user will only ever interact with a single Foundry window), so a fully perfect approach is not possible.
+
+Running Foundry locally via the Electron app
 ---
 
-If you're running Foundry on your own PC, you're likely running your server using Electron. This comes with a whole host of issues, at least as far as Sheet-o-scope is concerned: it means that you'll need to log in twice (once as a GM in the Electron app, once in your browser to view your sheets).
+If you're running Foundry on your own PC, you're likely running your Foundy server using Electron. This, sadly, is difficult for Sheet-o-scope to support.
 
-Foundry is built around a user only ever logging in once at a time - if you've logged in the Electron app, your name will be greyed out when it comes to log in via the browser.
+Ideas to fix this are tracked via issue https://github.com/andrey-p/fvtt-sheet-o-scope/issues/7.
 
-Another current issue is that going through the game log in screen will "forget" what sheet you were just trying to open.
-
-So, to work around these, this should work:
-
-1. Create a new user and grant them GM / assistant GM rights
-2. On the day of your game, start Foundry locally as you normally would
-3. Using your browser, open http://localhost:30000 (this URL might be vary) and login as your new user
-4. Detaching your sheets using Sheet-o-scope should now work!
-
-This is obviously not a great experience. Ideas to improve these are tracked via issue https://github.com/andrey-p/fvtt-sheet-o-scope/issues/7.
+In the meantime, you could circumvent this using the Foundry CLI: https://github.com/foundryvtt/foundryvtt-cli.
 
 Setting up for dev
 ---
