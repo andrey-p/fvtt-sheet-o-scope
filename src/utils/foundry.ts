@@ -26,23 +26,31 @@ export function getEntitySheet(
 
 // Use Foundry flags to persist a variety of things
 // see: https://foundryvtt.com/api/classes/foundry.abstract.Document.html#setFlag
+//
+// The values need to be encoded as JSON otherwise trying to use this
+// as a simple key/value store leads to some really unexpected behaviour
+// see: https://foundryvtt.wiki/en/development/guides/handling-data#some-details-about-setflag-and-objects
 
-export function getUserFlag(key: string): any {
+export async function getUserFlag(key: string): Promise<any> {
   const game = getGame();
   const thisUser = game.users?.current;
 
   if (thisUser) {
-    return thisUser.getFlag('sheet-o-scope', key);
+    const flag = await thisUser.getFlag('sheet-o-scope', key);
+
+    try {
+      return JSON.parse(flag as string);
+    } catch {}
   }
 
   return null;
 }
 
-export function setUserFlag(key: string, val: any) {
+export async function setUserFlag(key: string, val: any): Promise<void> {
   const game = getGame();
   const thisUser = game.users?.current;
 
   if (thisUser) {
-    thisUser.setFlag('sheet-o-scope', key, val);
+    await thisUser.setFlag('sheet-o-scope', key, JSON.stringify(val));
   }
 }

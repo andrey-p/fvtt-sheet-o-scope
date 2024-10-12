@@ -11,9 +11,9 @@ import { getUserFlag, setUserFlag } from './utils/foundry';
 
 const SHEET_EXPIRY_TIMEOUT_MS = 5 * 60 * 1000; // 5 mins
 
-export function getNextOpenableSheets(): SheetConfig[] {
+export async function getNextOpenableSheets(): Promise<SheetConfig[]> {
   const allOpenableSheets =
-    (getUserFlag('openableSheets') as SheetConfig[]) || [];
+    (await getUserFlag('openableSheets') as SheetConfig[]) || [];
   const validOpenableSheets: SheetConfig[] = [];
 
   let sheetConfig: SheetConfig | undefined;
@@ -31,13 +31,13 @@ export function getNextOpenableSheets(): SheetConfig[] {
     }
   }
 
-  setUserFlag('openableSheets', allOpenableSheets);
+  await setUserFlag('openableSheets', allOpenableSheets);
 
   return validOpenableSheets;
 }
 
-export function addOpenableSheet(sheetConfig: SheetConfig) {
-  let openableSheets = getUserFlag('openableSheets') as SheetConfig[] | null;
+export async function addOpenableSheet(sheetConfig: SheetConfig): Promise<void> {
+  let openableSheets = await getUserFlag('openableSheets') as SheetConfig[] | null;
 
   sheetConfig.created = Date.now();
 
@@ -47,5 +47,5 @@ export function addOpenableSheet(sheetConfig: SheetConfig) {
     openableSheets = [sheetConfig];
   }
 
-  setUserFlag('openableSheets', openableSheets);
+  await setUserFlag('openableSheets', openableSheets);
 }

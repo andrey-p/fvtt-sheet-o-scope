@@ -114,7 +114,12 @@ class SecondaryWindow {
   // pull in any new sheets that were added since the last time
   // the secondary window refreshed
   async #refreshSheets(): Promise<void> {
-    const sheetConfigs = getNextOpenableSheets();
+    const sheetConfigs = await getNextOpenableSheets();
+
+    this.#log(
+      LogType.Log,
+      `opening sheets after refresh: ${sheetConfigs.map((config) => config.id).join(', ')}`
+    );
 
     const renderPromises = sheetConfigs.map((sheetConfig) => {
       return this.#renderSheet(sheetConfig);

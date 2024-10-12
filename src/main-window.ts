@@ -85,7 +85,7 @@ class MainWindow extends EventTarget {
       return;
     }
 
-    addOpenableSheet({ id, type });
+    await addOpenableSheet({ id, type });
 
     sheet.close();
 
