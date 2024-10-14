@@ -170,7 +170,7 @@ class SecondaryWindow {
       } catch (e: any) {
         // this will likely fire with any newly added sheet...
         // even though we've waited until the render() promise has resolved,
-        // it still looks like the relevant sheet hasn't been added to the DOM yet
+        // it still looks like the relevant sheet won't have been added to the DOM yet
         // which leads to an uncaught error in setPosition()
         this.#log(
           LogType.Warn,
@@ -236,7 +236,7 @@ class SecondaryWindow {
 
     // register the fact that the user has manually resized the secondary window -
     // this likely means that they want it in a specific way,
-    // and further resizes will likely be very annoying
+    // and further automatic resizes will likely be very annoying
     this.#layoutGenerator.resizeViewport({
       width: window.innerWidth,
       height: window.innerHeight
