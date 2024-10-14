@@ -3,6 +3,15 @@
 
 declare global {
   var CONFIG: Config;
+
+  namespace foundry {
+    namespace utils {
+      declare function throttle<T extends (...args: any[]) => unknown>(
+        callback: T,
+        delay: number
+      ): (...args: Parameters<T>) => void;
+    }
+  }
 }
 
 export default global;

@@ -1,15 +1,15 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   addOpenableSheet,
-  getNextOpenableSheet
+  getNextOpenableSheets
 } from '../../src/sheet-persistence';
 
 vi.mock('../../src/utils/foundry', () => {
   const fakeStore = {};
 
   return {
-    getUserFlag: (key) => fakeStore[key] || null,
-    setUserFlag: (key, val) => (fakeStore[key] = val)
+    getUserFlag: (key) => Promise.resolve(fakeStore[key] || null),
+    setUserFlag: (key, val) => Promise.resolve((fakeStore[key] = val))
   };
 });
 
@@ -21,34 +21,32 @@ describe('sheet-persistence', () => {
     vi.restoreAllMocks();
   });
 
-  test('adding and removing sheets to storage', () => {
-    expect(getNextOpenableSheet()).toBeNull();
+  test('adding and removing sheets to storage', async () => {
+    expect(await getNextOpenableSheets()).toMatchObject([]);
 
-    addOpenableSheet({ id: 'abc', type: 'actor' });
-    addOpenableSheet({ id: 'def', type: 'journal' });
+    await addOpenableSheet({ id: 'abc', type: 'actor' });
+    await addOpenableSheet({ id: 'def', type: 'journal' });
 
-    expect(getNextOpenableSheet()).toMatchObject({ id: 'abc', type: 'actor' });
-    expect(getNextOpenableSheet()).toMatchObject({
-      id: 'def',
-      type: 'journal'
-    });
-    expect(getNextOpenableSheet()).toBeNull();
+    expect(await getNextOpenableSheets()).toMatchObject([
+      { id: 'abc', type: 'actor', created: expect.any(Number) },
+      { id: 'def', type: 'journal', created: expect.any(Number) }
+    ]);
+    expect(await getNextOpenableSheets()).toMatchObject([]);
   });
 
-  test('sheet expiry', () => {
-    expect(getNextOpenableSheet()).toBeNull();
+  test('sheet expiry', async () => {
+    expect(await getNextOpenableSheets()).toMatchObject([]);
 
-    addOpenableSheet({ id: 'abc', type: 'actor' });
+    await addOpenableSheet({ id: 'abc', type: 'actor' });
 
     // fast forward 10 mins
     vi.advanceTimersByTime(10 * 60 * 1000);
 
-    addOpenableSheet({ id: 'def', type: 'journal' });
+    await addOpenableSheet({ id: 'def', type: 'journal' });
 
-    expect(getNextOpenableSheet()).toMatchObject({
-      id: 'def',
-      type: 'journal'
-    });
-    expect(getNextOpenableSheet()).toBeNull();
+    expect(await getNextOpenableSheets()).toMatchObject([
+      { id: 'def', type: 'journal' }
+    ]);
+    expect(await getNextOpenableSheets()).toMatchObject([]);
   });
 });

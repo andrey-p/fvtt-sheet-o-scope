@@ -3,7 +3,7 @@ import { getWindowMode } from './utils/url';
 import WindowMode from './enums/window-mode';
 
 import MainWindow from './main-window';
-import SecondaryWindow from './secondary-window';
+import SecondaryWindow from './secondary-window/secondary-window';
 
 const url = window.location.toString();
 const windowMode = getWindowMode(url);

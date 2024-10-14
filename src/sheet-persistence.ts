@@ -1,4 +1,3 @@
-import { log } from './utils/logger';
 import { getUserFlag, setUserFlag } from './utils/foundry';
 
 // Module that persists openable sheets using the Foundry flag feature
@@ -12,48 +11,45 @@ import { getUserFlag, setUserFlag } from './utils/foundry';
 
 const SHEET_EXPIRY_TIMEOUT_MS = 5 * 60 * 1000; // 5 mins
 
-export function getNextOpenableSheet(): SheetConfig | null {
-  const openableSheets = getUserFlag('openableSheets') as SheetConfig[] | null;
+export async function getNextOpenableSheets(): Promise<SheetConfig[]> {
+  const allOpenableSheets =
+    ((await getUserFlag('openableSheets')) as SheetConfig[]) || [];
+  const validOpenableSheets: SheetConfig[] = [];
 
-  if (!openableSheets) {
-    return null;
-  }
-
-  log(`available sheets: [${openableSheets.map((sheet) => sheet.id)}]`);
-
-  let sheet = null;
-
-  while (!sheet && openableSheets.length) {
-    sheet = openableSheets.shift();
+  let sheetConfig: SheetConfig | undefined;
+  while (allOpenableSheets.length) {
+    sheetConfig = allOpenableSheets.shift();
 
     // enforce sheet expiry - we don't want a failed sheet open
     // from 2 weeks ago to suddenly appear at today's session start
     if (
-      sheet &&
-      sheet.created &&
-      sheet.created < Date.now() - SHEET_EXPIRY_TIMEOUT_MS
+      sheetConfig &&
+      sheetConfig.created &&
+      sheetConfig.created > Date.now() - SHEET_EXPIRY_TIMEOUT_MS
     ) {
-      sheet = null;
+      validOpenableSheets.push(sheetConfig);
     }
   }
 
-  setUserFlag('openableSheets', openableSheets);
+  await setUserFlag('openableSheets', allOpenableSheets);
 
-  return sheet || null;
+  return validOpenableSheets;
 }
 
-export function addOpenableSheet(config: SheetConfig) {
-  let openableSheets = getUserFlag('openableSheets') as SheetConfig[] | null;
+export async function addOpenableSheet(
+  sheetConfig: SheetConfig
+): Promise<void> {
+  let openableSheets = (await getUserFlag('openableSheets')) as
+    | SheetConfig[]
+    | null;
 
-  config.created = Date.now();
+  sheetConfig.created = Date.now();
 
   if (openableSheets) {
-    openableSheets.push(config);
+    openableSheets.push(sheetConfig);
   } else {
-    openableSheets = [config];
+    openableSheets = [sheetConfig];
   }
 
-  log(`sheets now: [${openableSheets.map((sheet) => sheet.id)}]`);
-
-  setUserFlag('openableSheets', openableSheets);
+  await setUserFlag('openableSheets', openableSheets);
 }

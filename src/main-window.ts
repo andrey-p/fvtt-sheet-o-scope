@@ -1,17 +1,20 @@
 import { log } from './utils/logger';
-import { getGame, getEntitySheet } from './utils/foundry';
+import { getGame, getEntitySheet, l } from './utils/foundry';
 import { addOpenableSheet } from './sheet-persistence';
 
-import { EntityType, SocketAction } from './enums';
+import { EntityType, SocketAction, LogType } from './enums';
 
 import SocketHandler from './socket-handler.ts';
 import DetachButton from './ui/detach-button.ts';
 
 class MainWindow extends EventTarget {
   #socketHandler?: SocketHandler;
+  #waitingOnFirstPingBack?: boolean;
 
   constructor() {
     super();
+
+    this.#waitingOnFirstPingBack = false;
 
     Hooks.once('ready', this.#initialize.bind(this));
   }
@@ -23,14 +26,12 @@ class MainWindow extends EventTarget {
     // bother the GM until it's installed and enabled,
     // otherwise sheet-o-scope can't do its thing
     if (!game.modules.get('lib-wrapper')?.active && game.user?.isGM) {
-      ui.notifications?.error(
-        'Module sheet-o-scope requires the "libWrapper" module. Please install and activate it.'
-      );
+      ui.notifications?.error(l('SHEET-O-SCOPE.noLibWrapperWarning'));
 
       return;
     }
 
-    log('Setting up changes to main window');
+    log(LogType.Log, 'Setting up changes to main window');
 
     Hooks.on(
       'getActorSheetHeaderButtons',
@@ -56,7 +57,17 @@ class MainWindow extends EventTarget {
     const eventData = event.data;
 
     if (eventData.action === SocketAction.Reattach) {
-      this.#reattachSheet(eventData.data);
+      // the secondary window has requested that a sheet gets reopened
+      // in the main window
+      this.#reattachSheet(eventData.data as SheetConfig);
+    } else if (eventData.action === SocketAction.PingBack) {
+      // the secondary window is ready to communicate
+      this.#waitingOnFirstPingBack = false;
+    } else if (eventData.action === SocketAction.Log) {
+      // sending these to main window to make logging in the secondary window
+      // less dependent on having 2 devtools open
+      const logData = eventData.data as Log;
+      log(logData.type, `[SECONDARY] | ${logData.message}`);
     }
   }
 
@@ -72,7 +83,7 @@ class MainWindow extends EventTarget {
     buttons.unshift(button);
   }
 
-  #detachSheet(type: EntityType, sheet: DocumentSheet): void {
+  async #detachSheet(type: EntityType, sheet: DocumentSheet): Promise<void> {
     const { width, height } = sheet.options;
     const id = sheet.document.id;
 
@@ -80,15 +91,44 @@ class MainWindow extends EventTarget {
       return;
     }
 
-    addOpenableSheet({ id, type });
+    // persist the sheet, and close it in this window
+    await addOpenableSheet({ id, type });
 
     sheet.close();
 
-    window.open(
-      `/game?sheetView=1`,
-      `sheet-o-scope-secondary-${id}`,
-      `popup=true,width=${width},height=${height}`
-    );
+    const hasSecondaryWindow = await this.#isSecondaryWindowOpen();
+
+    // if the secondary window has already been opened,
+    // tell it to pull in the sheet just added
+    if (hasSecondaryWindow) {
+      this.#socketHandler?.send(SocketAction.Refresh);
+    } else if (this.#waitingOnFirstPingBack) {
+      // annoying...
+      //
+      // I can't see a reason why opening multiple sheets while the secondary window is loading
+      // would be an issue - it _should_ be able to just pull the latest as soon as it's ready
+      //
+      // it looks like the secondary window pulls in just the first sheet when it calls getOpenableSheets()
+      // so it's possible that it's lost when persisted via Foundry's setFlag()
+      //
+      // this is way too niche of an issue to spend a lot of time on debugging,
+      // so at the very least give the user a heads up
+      ui.notifications?.error(l('SHEET-O-SCOPE.loadingDetachWarning'));
+    } else {
+      // secondary window is unresponsive and we don't think it's currently loading
+      //
+      // either this is the first time we've opened it this session,
+      // or the secondary window has been closed at some point
+      //
+      // either way, go ahead and open it
+      this.#waitingOnFirstPingBack = true;
+
+      window.open(
+        `/game?sheetView=1`,
+        `sheet-o-scope-secondary-${id}`,
+        `popup=true,width=${width},height=${height}`
+      );
+    }
   }
 
   #reattachSheet(config: SheetConfig): void {
@@ -98,6 +138,42 @@ class MainWindow extends EventTarget {
     if (sheet) {
       sheet.render(true);
     }
+  }
+
+  // check if a secondary window is open by pinging it via websocket
+  async #isSecondaryWindowOpen(): Promise<boolean> {
+    const socketHandler = this.#socketHandler;
+
+    if (!socketHandler) {
+      throw new Error("Can't ping if socket handler isn't initialized!");
+    }
+
+    // add a temporary listener to check that a ping comes back
+    // within a 1s timeout
+    //
+    // contained in a single promise to keep things simple elsewhere
+    const promise = new Promise<boolean>((resolve) => {
+      let timeout: ReturnType<typeof setTimeout>;
+
+      const temporaryListener = ((event: SocketMessageEvent) => {
+        if (event.data.action === SocketAction.PingBack) {
+          socketHandler.removeEventListener('message', temporaryListener);
+          clearTimeout(timeout);
+          resolve(true);
+        }
+      }) as EventListener;
+
+      timeout = setTimeout(() => {
+        socketHandler.removeEventListener('message', temporaryListener);
+        resolve(false);
+      }, 1000);
+
+      socketHandler.addEventListener('message', temporaryListener);
+    });
+
+    socketHandler.send(SocketAction.Ping);
+
+    return promise;
   }
 }
 
