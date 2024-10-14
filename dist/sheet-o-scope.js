@@ -1,186 +1,252 @@
-var G = Object.defineProperty;
-var U = (s) => {
-  throw TypeError(s);
+var fe = Object.defineProperty;
+var j = (i) => {
+  throw TypeError(i);
 };
-var X = (s, e, t) => e in s ? G(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
-var l = (s, e, t) => X(s, typeof e != "symbol" ? e + "" : e, t), M = (s, e, t) => e.has(s) || U("Cannot " + t);
-var g = (s, e, t) => (M(s, e, "read from private field"), t ? t.call(s) : e.get(s)), u = (s, e, t) => e.has(s) ? U("Cannot add the same private member more than once") : e instanceof WeakSet ? e.add(s) : e.set(s, t), H = (s, e, t, n) => (M(s, e, "write to private field"), n ? n.call(s, t) : e.set(s, t), t), r = (s, e, t) => (M(s, e, "access private method"), t);
-var w = /* @__PURE__ */ ((s) => (s.Main = "main", s.Secondary = "secondary", s))(w || {});
-function Y(s) {
-  return new URL(s).searchParams.get("sheetView") ? w.Secondary : w.Main;
+var pe = (i, t, e) => t in i ? fe(i, t, { enumerable: !0, configurable: !0, writable: !0, value: e }) : i[t] = e;
+var S = (i, t, e) => pe(i, typeof t != "symbol" ? t + "" : t, e), N = (i, t, e) => t.has(i) || j("Cannot " + e);
+var h = (i, t, e) => (N(i, t, "read from private field"), e ? e.call(i) : t.get(i)), u = (i, t, e) => t.has(i) ? j("Cannot add the same private member more than once") : t instanceof WeakSet ? t.add(i) : t.set(i, e), c = (i, t, e, s) => (N(i, t, "write to private field"), s ? s.call(i, e) : t.set(i, e), e), o = (i, t, e) => (N(i, t, "access private method"), e);
+var $ = /* @__PURE__ */ ((i) => (i.Main = "main", i.Secondary = "secondary", i))($ || {});
+function me(i) {
+  return new URL(i).searchParams.get("sheetView") ? $.Secondary : $.Main;
 }
-var d = /* @__PURE__ */ ((s) => (s.Actor = "actor", s.Item = "item", s.Journal = "journal", s))(d || {});
-function f() {
+var y = /* @__PURE__ */ ((i) => (i.Actor = "actor", i.Item = "item", i.Journal = "journal", i))(y || {});
+function z() {
   return game;
 }
-function W(s, e) {
-  var n, o, i, h, k, R;
-  const t = f();
-  if (e === d.Actor)
-    return (o = (n = t.actors) == null ? void 0 : n.get(s)) == null ? void 0 : o.sheet;
-  if (e === d.Item)
-    return (h = (i = t.items) == null ? void 0 : i.get(s)) == null ? void 0 : h.sheet;
-  if (e === d.Journal)
-    return (R = (k = t.journal) == null ? void 0 : k.get(s)) == null ? void 0 : R.sheet;
+function Y(i, t) {
+  var s, r, a, d, l, k;
+  const e = z();
+  if (t === y.Actor)
+    return (r = (s = e.actors) == null ? void 0 : s.get(i)) == null ? void 0 : r.sheet;
+  if (t === y.Item)
+    return (d = (a = e.items) == null ? void 0 : a.get(i)) == null ? void 0 : d.sheet;
+  if (t === y.Journal)
+    return (k = (l = e.journal) == null ? void 0 : l.get(i)) == null ? void 0 : k.sheet;
 }
-function J(s) {
-  var n;
-  const t = (n = f().users) == null ? void 0 : n.current;
-  return t ? t.getFlag("sheet-o-scope", s) : null;
+async function X(i) {
+  var s;
+  const e = (s = z().users) == null ? void 0 : s.current;
+  if (e) {
+    const r = await e.getFlag("sheet-o-scope", i);
+    try {
+      return JSON.parse(r);
+    } catch {
+    }
+  }
+  return null;
 }
-function O(s, e) {
-  var o;
-  const n = (o = f().users) == null ? void 0 : o.current;
-  n && n.setFlag("sheet-o-scope", s, e);
+async function K(i, t) {
+  var r;
+  const s = (r = z().users) == null ? void 0 : r.current;
+  s && await s.setFlag("sheet-o-scope", i, JSON.stringify(t));
 }
-const K = 5 * 60 * 1e3;
-function Q() {
-  const s = J("openableSheets");
-  if (!s)
-    return null;
-  `${s.map((t) => t.id)}`;
-  let e = null;
-  for (; !e && s.length; )
-    e = s.shift(), e && e.created && e.created < Date.now() - K && (e = null);
-  return O("openableSheets", s), e || null;
+function G(i) {
+  return z().i18n.localize(i);
 }
-function Z(s) {
-  let e = J("openableSheets");
-  s.created = Date.now(), e ? e.push(s) : e = [s], `${e.map((t) => t.id)}`, O("openableSheets", e);
+const ye = 5 * 60 * 1e3;
+async function Se() {
+  const i = await X("openableSheets") || [], t = [];
+  let e;
+  for (; i.length; )
+    e = i.shift(), e && e.created && e.created > Date.now() - ye && t.push(e);
+  return await K("openableSheets", i), t;
 }
-var A = /* @__PURE__ */ ((s) => (s.Reattach = "reattach", s))(A || {}), m, C, z;
-class P extends EventTarget {
+async function be(i) {
+  let t = await X("openableSheets");
+  i.created = Date.now(), t ? t.push(i) : t = [i], await K("openableSheets", t);
+}
+var p = /* @__PURE__ */ ((i) => (i.Reattach = "reattach", i.Refresh = "refresh", i.Ping = "ping", i.PingBack = "pingBack", i.Log = "log", i))(p || {}), w = /* @__PURE__ */ ((i) => (i.Log = "log", i.Warn = "warn", i.Error = "error", i))(w || {}), B, P, I, Z, ee;
+class Q extends EventTarget {
   constructor() {
     super();
-    u(this, m);
-    const t = f();
-    if (!t.socket || !t.userId)
+    u(this, I);
+    u(this, B);
+    u(this, P);
+    const e = z();
+    if (!e.socket || !e.userId)
       throw new Error(
         "can't initialise websocket module before game is initialised"
       );
-    t.socket.on("module.sheet-o-scope", r(this, m, C).bind(this));
+    c(this, B, e.socket), c(this, P, e.userId), h(this, B).on("module.sheet-o-scope", o(this, I, Z).bind(this));
   }
-  send(t, n) {
-    var h;
-    const o = f(), i = {
-      sender: o.userId,
-      action: t,
-      data: n
+  send(e, s) {
+    const r = {
+      sender: h(this, P),
+      action: e,
+      data: s
     };
-    (h = o.socket) == null || h.emit("module.sheet-o-scope", i);
+    h(this, B).emit("module.sheet-o-scope", r);
   }
 }
-m = new WeakSet(), C = function(t) {
-  r(this, m, z).call(this, t) && this.dispatchEvent(new MessageEvent("message", { data: t }));
-}, z = function(t) {
-  const n = f();
-  return t.sender === n.userId;
+B = new WeakMap(), P = new WeakMap(), I = new WeakSet(), Z = function(e) {
+  o(this, I, ee).call(this, e) && this.dispatchEvent(new MessageEvent("message", { data: e }));
+}, ee = function(e) {
+  return e.sender === h(this, P);
 };
-class ee {
+class ke {
   constructor() {
-    l(this, "label", "SHEET-O-SCOPE.detach");
-    l(this, "class", "sheet-detach");
-    l(this, "icon", "fa-solid fa-arrow-right-from-bracket");
-    l(this, "onclick", null);
+    S(this, "label", "SHEET-O-SCOPE.detach");
+    S(this, "class", "sheet-detach");
+    S(this, "icon", "fa-solid fa-arrow-right-from-bracket");
+    S(this, "onclick", null);
   }
 }
-var b, c, D, F, y, L, N;
-class te extends EventTarget {
+var H, v, g, te, ie, D, se, ne, oe;
+class He extends EventTarget {
   constructor() {
     super();
-    u(this, c);
-    u(this, b);
-    Hooks.once("ready", r(this, c, D).bind(this));
+    u(this, g);
+    u(this, H);
+    u(this, v);
+    c(this, v, !1), Hooks.once("ready", o(this, g, te).bind(this));
   }
 }
-b = new WeakMap(), c = new WeakSet(), D = function() {
-  var n, o, i;
-  const t = f();
-  if (!((n = t.modules.get("lib-wrapper")) != null && n.active) && ((o = t.user) != null && o.isGM)) {
-    (i = ui.notifications) == null || i.error(
-      'Module sheet-o-scope requires the "libWrapper" module. Please install and activate it.'
-    );
+H = new WeakMap(), v = new WeakMap(), g = new WeakSet(), te = function() {
+  var s, r, a;
+  const e = z();
+  if (!((s = e.modules.get("lib-wrapper")) != null && s.active) && ((r = e.user) != null && r.isGM)) {
+    (a = ui.notifications) == null || a.error(G("SHEET-O-SCOPE.noLibWrapperWarning"));
     return;
   }
-  Hooks.on(
+  w.Log, Hooks.on(
     "getActorSheetHeaderButtons",
-    r(this, c, y).bind(this, d.Actor)
+    o(this, g, D).bind(this, y.Actor)
   ), Hooks.on(
     "getItemSheetHeaderButtons",
-    r(this, c, y).bind(this, d.Item)
+    o(this, g, D).bind(this, y.Item)
   ), Hooks.on(
     "getJournalSheetHeaderButtons",
-    r(this, c, y).bind(this, d.Journal)
-  ), H(this, b, new P()), g(this, b).addEventListener(
+    o(this, g, D).bind(this, y.Journal)
+  ), c(this, H, new Q()), h(this, H).addEventListener(
     "message",
-    r(this, c, F).bind(this)
+    o(this, g, ie).bind(this)
   );
-}, F = function(t) {
-  const n = t.data;
-  n.action === A.Reattach && r(this, c, N).call(this, n.data);
-}, y = function(t, n, o) {
-  const i = new ee();
-  i.onclick = () => {
-    r(this, c, L).call(this, t, n);
-  }, o.unshift(i);
-}, L = function(t, n) {
-  const { width: o, height: i } = n.options, h = n.document.id;
-  h && (Z({ id: h, type: t }), n.close(), window.open(
+}, ie = function(e) {
+  const s = e.data;
+  if (s.action === p.Reattach)
+    o(this, g, ne).call(this, s.data);
+  else if (s.action === p.PingBack)
+    c(this, v, !1);
+  else if (s.action === p.Log) {
+    const r = s.data;
+    r.type, `${r.message}`;
+  }
+}, D = function(e, s, r) {
+  const a = new ke();
+  a.onclick = () => {
+    o(this, g, se).call(this, e, s);
+  }, r.unshift(a);
+}, se = async function(e, s) {
+  var k, T;
+  const { width: r, height: a } = s.options, d = s.document.id;
+  if (!d)
+    return;
+  await be({ id: d, type: e }), s.close(), await o(this, g, oe).call(this) ? (k = h(this, H)) == null || k.send(p.Refresh) : h(this, v) ? (T = ui.notifications) == null || T.error(G("SHEET-O-SCOPE.loadingDetachWarning")) : (c(this, v, !0), window.open(
     "/game?sheetView=1",
-    `sheet-o-scope-secondary-${h}`,
-    `popup=true,width=${o},height=${i}`
+    `sheet-o-scope-secondary-${d}`,
+    `popup=true,width=${r},height=${a}`
   ));
-}, N = function(t) {
-  const { id: n, type: o } = t, i = W(n, o);
-  i && i.render(!0);
+}, ne = function(e) {
+  const { id: s, type: r } = e, a = Y(s, r);
+  a && a.render(!0);
+}, oe = async function() {
+  const e = h(this, H);
+  if (!e)
+    throw new Error("Can't ping if socket handler isn't initialized!");
+  const s = new Promise((r) => {
+    let a;
+    const d = (l) => {
+      l.data.action === p.PingBack && (e.removeEventListener("message", d), clearTimeout(a), r(!0));
+    };
+    a = setTimeout(() => {
+      e.removeEventListener("message", d), r(!1);
+    }, 1e3), e.addEventListener("message", d);
+  });
+  return e.send(p.Ping), s;
 };
-class se {
-  constructor() {
-    l(this, "label", "SHEET-O-SCOPE.reattach");
-    l(this, "class", "sheet-reattach");
-    l(this, "icon", "fa-solid fa-arrow-right-to-bracket");
-    l(this, "onclick", null);
+const V = 700;
+var E, M, O;
+class ve {
+  constructor(t, e) {
+    u(this, E);
+    u(this, M);
+    u(this, O);
+    c(this, E, t), c(this, M, e), c(this, O, !1);
+  }
+  resizeViewport(t) {
+    c(this, E, t), c(this, O, !0);
+  }
+  getLayout(t) {
+    const e = h(this, E).height;
+    let s = 0;
+    const r = [];
+    t.forEach((d) => {
+      const l = d.options.width || V;
+      r.push({
+        x: s,
+        y: 0,
+        width: l,
+        height: e
+      }), s += l;
+    });
+    let a;
+    return h(this, O) ? a = h(this, E).width : (a = Math.min(s, h(this, M)), a === 0 && (a = V)), {
+      viewport: {
+        width: a,
+        height: e
+      },
+      sheets: r
+    };
   }
 }
-var E, $;
-class ne {
+E = new WeakMap(), M = new WeakMap(), O = new WeakMap();
+class Ee {
   constructor() {
-    u(this, E);
+    S(this, "label", "SHEET-O-SCOPE.reattach");
+    S(this, "class", "sheet-reattach");
+    S(this, "icon", "fa-solid fa-arrow-right-to-bracket");
+    S(this, "onclick", null);
+  }
+}
+var A, re;
+class We {
+  constructor() {
+    u(this, A);
   }
   run() {
-    const e = r(this, E, $);
+    const t = o(this, A, re);
     libWrapper.register(
       "sheet-o-scope",
       "Notifications.prototype.notify",
-      function(t, ...n) {
-        return e(n) ? -1 : t(...n);
+      function(e, ...s) {
+        return t(s) ? -1 : e(...s);
       }
     );
   }
 }
-E = new WeakSet(), $ = function(e) {
-  const [t, n] = e;
-  return !!(n === "info" && t.includes("not displayed because the game Canvas is disabled") || n === "error" && t.includes(
+A = new WeakSet(), re = function(t) {
+  const [e, s] = t;
+  return !!(s === "info" && e.includes("not displayed because the game Canvas is disabled") || s === "error" && e.includes(
     "Foundry Virtual Tabletop requires a minimum screen resolution"
   ));
 };
-var I, _;
-class oe {
+var J, ae;
+class Le {
   constructor() {
-    u(this, I);
+    u(this, J);
   }
   run() {
-    const e = r(this, I, _);
+    const t = o(this, J, ae);
     libWrapper.register(
       "sheet-o-scope",
       "Application.prototype.render",
-      function(t, ...n) {
-        return e(this) ? this : t(...n);
+      function(e, ...s) {
+        return t(this) ? this : e(...s);
       }
     );
   }
 }
-I = new WeakSet(), _ = function(e) {
+J = new WeakSet(), ae = function(t) {
   return !![
     "navigation",
     "sidebar",
@@ -188,81 +254,140 @@ I = new WeakSet(), _ = function(e) {
     "hotbar",
     "pause",
     "controls"
-  ].includes(e.options.id);
+  ].includes(t.options.id);
 };
-class ie {
+class Be {
   run() {
     libWrapper.register(
       "sheet-o-scope",
       "ClientSettings.prototype.get",
-      function(e, ...t) {
-        return t.join(".") === "core.noCanvas" ? !0 : e(...t);
+      function(t, ...e) {
+        return e.join(".") === "core.noCanvas" ? !0 : t(...e);
       }
     );
   }
 }
-const re = [
-  ne,
-  oe,
-  ie
+const Pe = [
+  We,
+  Le,
+  Be
 ];
-var S, p, a, j, q, x, v, B, V;
-class ae {
+var b, W, R, L, m, n, he, ce, de, F, C, le, ue, U, x, ge, _, f, we;
+class Oe {
   constructor() {
-    u(this, a);
-    u(this, S);
-    u(this, p);
+    u(this, n);
+    u(this, b);
+    u(this, W);
+    u(this, R);
+    u(this, L);
+    u(this, m);
     var e;
-    H(this, p, !!window.opener && window.name.includes("sheet-o-scope")), Hooks.once("init", r(this, a, j).bind(this)), Hooks.once("ready", r(this, a, q).bind(this)), Hooks.on(
+    c(this, m, []), c(this, R, !!window.opener && window.name.includes("sheet-o-scope")), c(this, W, new ve(
+      { width: window.innerWidth, height: window.innerHeight },
+      window.screen.availWidth
+    )), c(this, L, !1), Hooks.once("init", o(this, n, he).bind(this)), Hooks.once("ready", o(this, n, ce).bind(this)), Hooks.on(
       "getActorSheetHeaderButtons",
-      r(this, a, v).bind(this, d.Actor)
+      o(this, n, U).bind(this, y.Actor)
     ), Hooks.on(
       "getItemSheetHeaderButtons",
-      r(this, a, v).bind(this, d.Item)
+      o(this, n, U).bind(this, y.Item)
     ), Hooks.on(
       "getJournalSheetHeaderButtons",
-      r(this, a, v).bind(this, d.Journal)
-    ), Hooks.on("renderActorSheet", r(this, a, B).bind(this)), Hooks.on("renderItemSheet", r(this, a, B).bind(this)), Hooks.on("renderJournalSheet", r(this, a, B).bind(this)), (e = document.querySelector("body")) == null || e.classList.add("sheet-o-scope-secondary");
+      o(this, n, U).bind(this, y.Journal)
+    ), Hooks.on("renderActorSheet", o(this, n, x).bind(this)), Hooks.on("renderItemSheet", o(this, n, x).bind(this)), Hooks.on("renderJournalSheet", o(this, n, x).bind(this)), (e = document.querySelector("body")) == null || e.classList.add("sheet-o-scope-secondary");
+    const t = foundry.utils.throttle(o(this, n, ue), 1e3).bind(this);
+    window.addEventListener("resize", t);
   }
 }
-S = new WeakMap(), p = new WeakMap(), a = new WeakSet(), j = function() {
-  H(this, S, new P()), re.forEach((e) => {
-    new e().run();
+b = new WeakMap(), W = new WeakMap(), R = new WeakMap(), L = new WeakMap(), m = new WeakMap(), n = new WeakSet(), he = function() {
+  Pe.forEach((t) => {
+    new t().run();
   });
-}, q = function() {
-  const e = Q();
-  if (!e)
+}, ce = async function() {
+  c(this, b, new Q()), h(this, b).addEventListener(
+    "message",
+    o(this, n, we).bind(this)
+  ), h(this, b).send(p.PingBack), o(this, n, F).call(this);
+}, de = function(t) {
+  if (window.innerWidth === t.width && window.innerHeight === t.height)
     return;
-  const { id: t, type: n } = e, o = W(t, n);
-  if (o) {
-    const i = {};
-    g(this, p) && (i.resizable = !1, window.addEventListener(
-      "resize",
-      r(this, a, x).bind(this, o)
-    )), i.minimizable = !1, o.render(!0, i);
-  }
-}, x = function(e) {
-  e && e.setPosition({
+  o(this, n, f).call(this, w.Log, "resizing secondary window");
+  const e = t.width + window.outerWidth - window.innerWidth, s = t.height + window.outerHeight - window.innerHeight;
+  window.resizeTo(e, s);
+}, F = async function() {
+  const t = await Se();
+  o(this, n, f).call(this, w.Log, `opening sheets after refresh: ${t.map((s) => s.id).join(", ")}`);
+  const e = t.map((s) => o(this, n, le).call(this, s));
+  await Promise.all(e), o(this, n, C).call(this);
+}, C = async function() {
+  const t = h(this, W).getLayout(h(this, m));
+  o(this, n, f).call(this, w.Log, "starting relayout..."), o(this, n, f).call(this, w.Log, `secondary window dimensions: ${t.viewport.width}x${t.viewport.height}`), o(this, n, f).call(this, w.Log, `number of sheets: ${t.sheets.length}`), c(this, L, !0), o(this, n, de).call(this, t.viewport);
+  const e = h(this, m).map((s, r) => {
+    const { x: a, y: d, width: l, height: k } = t.sheets[r];
+    try {
+      return s.setPosition({
+        left: a,
+        top: d,
+        width: l,
+        height: k
+      });
+    } catch (T) {
+      o(this, n, f).call(this, w.Warn, `Couldn't reposition sheet ${s.id}: ${T.message}`);
+    }
+    return Promise.resolve();
+  });
+  await Promise.all(e), c(this, L, !1);
+}, le = async function(t) {
+  if (!t)
+    return;
+  const { id: e, type: s } = t, r = Y(e, s);
+  if (r) {
+    const a = {};
+    h(this, m).push(r);
+    const l = h(this, W).getLayout(h(this, m)).sheets.pop();
+    l && (a.left = l.x, a.right = l.y, a.width = l.width, a.height = l.height), h(this, R) && (a.resizable = !1), a.minimizable = !1, o(this, n, f).call(this, w.Log, `Opening sheet for ${s} with ID: ${e}`), await r.render(!0, a);
+  } else
+    o(this, n, f).call(this, w.Warn, `Couldn't find sheet for ${s} with ID: ${e}`);
+}, ue = function() {
+  h(this, L) || (h(this, W).resizeViewport({
     width: window.innerWidth,
     height: window.innerHeight
-  });
-}, v = function(e, t, n) {
-  const o = t.document.id;
-  if (!o)
+  }), o(this, n, f).call(this, w.Log, "secondary window manually resized - it will no longer be automatically resized by this module"), o(this, n, C).call(this));
+}, // tweak the buttons that appear at the top of each sheet in the secondary screen
+U = function(t, e, s) {
+  const r = e.document.id;
+  if (!r)
     return;
-  const i = n.find((k) => k.class === "close");
-  i && (i.onclick = () => {
-    window.close();
+  const a = s.find((l) => l.class === "close");
+  a && (a.onclick = () => {
+    o(this, n, _).call(this, e.id);
   });
-  const h = new se();
-  h.onclick = () => {
-    r(this, a, V).call(this, e, o);
-  }, n.unshift(h);
-}, B = function(e, t) {
-  g(this, p) && t[0].classList.add("secondary-window-sheet");
-}, V = function(e, t) {
-  var n;
-  (n = g(this, S)) == null || n.send(A.Reattach, { id: t, type: e }), window.close();
+  const d = new Ee();
+  d.onclick = () => {
+    o(this, n, ge).call(this, t, r, e.id);
+  }, s.unshift(d);
+}, // tweak the sheet itself
+x = function(t, e) {
+  h(this, R) && e[0].classList.add("secondary-window-sheet");
+}, ge = function(t, e, s) {
+  var r;
+  o(this, n, f).call(this, w.Log, `reattaching sheet with id: ${s}`), (r = h(this, b)) == null || r.send(p.Reattach, { id: e, type: t }), o(this, n, _).call(this, s);
+}, _ = function(t) {
+  o(this, n, f).call(this, w.Log, `closing sheet with id: ${t}`);
+  const e = h(this, m).findIndex((r) => r.id === t);
+  if (e === -1) {
+    o(this, n, f).call(this, w.Warn, `couldn't find sheet with id: ${t}`);
+    return;
+  }
+  h(this, m).splice(e, 1)[0].close(), h(this, m).length ? o(this, n, C).call(this) : window.close();
+}, // send any logs to the main window
+f = function(t, e) {
+  var s;
+  (s = h(this, b)) == null || s.send(p.Log, { type: t, message: e });
+}, we = function(t) {
+  var s;
+  const e = t.data;
+  e.action === p.Ping ? (s = h(this, b)) == null || s.send(p.PingBack) : e.action === p.Refresh && o(this, n, F).call(this);
 };
-const ce = window.location.toString(), T = Y(ce);
-T === w.Main ? new te() : T === w.Secondary && new ae();
+const Re = window.location.toString(), q = me(Re);
+q === $.Main ? new He() : q === $.Secondary && new Oe();

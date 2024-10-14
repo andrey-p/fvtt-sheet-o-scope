@@ -1,6 +1,8 @@
 {
   "SHEET-O-SCOPE": {
     "detach": "Detach",
-    "reattach": "Reattach"
+    "reattach": "Reattach",
+    "loadingDetachWarning": "Please wait until the Sheet-o-scope window has loaded before detaching another sheet.",
+    "noLibWrapperWarning": "Sheet-o-scope requires the \"libWrapper\" module. Please install and activate it."
   }
 }
