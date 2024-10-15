@@ -9,14 +9,12 @@ import DetachButton from './ui/detach-button';
 
 import Settings from './settings';
 
-class MainWindow extends EventTarget {
+class MainWindow {
   #socketHandler?: SocketHandler;
   #waitingOnFirstPingBack?: boolean;
   #settings: Settings;
 
   constructor() {
-    super();
-
     this.#waitingOnFirstPingBack = false;
 
     Hooks.once('ready', this.#ready.bind(this));
