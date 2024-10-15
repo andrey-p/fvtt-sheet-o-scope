@@ -4,8 +4,10 @@ import { addOpenableSheet } from './sheet-persistence';
 
 import { EntityType, SocketAction, LogType } from './enums';
 
-import SocketHandler from './socket-handler.ts';
-import DetachButton from './ui/detach-button.ts';
+import SocketHandler from './socket-handler';
+import DetachButton from './ui/detach-button';
+
+import { registerSettings } from './settings/settings';
 
 class MainWindow extends EventTarget {
   #socketHandler?: SocketHandler;
@@ -19,7 +21,7 @@ class MainWindow extends EventTarget {
     Hooks.once('ready', this.#initialize.bind(this));
   }
 
-  #initialize(): void {
+  async #initialize(): Promise<void> {
     const game = getGame();
 
     // lib-wrapper is needed to patch into Foundry code -
@@ -51,6 +53,8 @@ class MainWindow extends EventTarget {
       'message',
       this.#onMessageReceived.bind(this) as EventListener
     );
+
+    await registerSettings();
   }
 
   #onMessageReceived(event: SocketMessageEvent): void {

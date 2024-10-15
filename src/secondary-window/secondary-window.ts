@@ -11,6 +11,8 @@ import BlockUnnecessaryNotificationsShim from './shims/block-unnecessary-notific
 import BlockUnnecessaryUiShim from './shims/block-unnecessary-ui';
 import DisableCanvasShim from './shims/disable-canvas';
 
+import { registerSettings } from '../settings/settings';
+
 const isDev = import.meta.env.MODE === 'dev';
 
 const shims = [
@@ -78,13 +80,15 @@ class SecondaryWindow {
     }
   }
 
-  #initialize(): void {
+  async #initialize(): Promise<void> {
     // mild hacks that make the UX a bit nicer
     // that need to execute as early as possible
     shims.forEach((Shim) => {
       const shim = new Shim();
       shim.run();
     });
+
+    await registerSettings();
   }
 
   async #ready(): Promise<void> {
