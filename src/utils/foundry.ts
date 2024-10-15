@@ -58,7 +58,7 @@ export function l(key: string): string {
   const game = getGame();
 
   if (!game || !game.i18n || !game.i18n.localize) {
-    throw new Error('this helper can only be used after Foundry\'s initialized');
+    throw new Error("this helper can only be used after Foundry's initialized");
   }
 
   return game.i18n.localize(key);
