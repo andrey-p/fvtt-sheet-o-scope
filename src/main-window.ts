@@ -2,7 +2,7 @@ import { log } from './utils/logger';
 import { getGame, getEntitySheet, l } from './utils/foundry';
 import { addOpenableSheet } from './sheet-persistence';
 
-import { EntityType, SocketAction, LogType } from './enums';
+import { EntityType, SocketAction, LogType, ControlledMode } from './enums';
 
 import SocketHandler from './socket-handler';
 import DetachButton from './ui/detach-button';
@@ -143,7 +143,9 @@ class MainWindow extends EventTarget {
       // uncontrolled mode makes the secondary window more like a
       // freeform container for users to position their sheets as they wish
       // so give them some extra initial space, to drive the point across
-      if (this.#settings.get('controlledMode') === 'uncontrolled') {
+      if (
+        this.#settings.get('controlledMode') === ControlledMode.Uncontrolled
+      ) {
         width += 100;
         height += 100;
       }

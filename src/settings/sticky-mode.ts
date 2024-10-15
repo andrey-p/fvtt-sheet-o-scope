@@ -1,3 +1,5 @@
+import { StickyMode } from '../enums';
+
 const config: SettingConfig<string> = {
   namespace: 'sheet-o-scope',
   key: 'stickyMode',
@@ -7,8 +9,8 @@ const config: SettingConfig<string> = {
   config: true,
   type: String,
   choices: {
-    'normal': 'SHEET-O-SCOPE.stickyModeNormal',
-    'sticky': 'SHEET-O-SCOPE.stickyModeSticky'
+    [StickyMode.Normal]: 'SHEET-O-SCOPE.stickyModeNormal',
+    [StickyMode.Sticky]: 'SHEET-O-SCOPE.stickyModeSticky'
   },
   default: 'normal'
 };

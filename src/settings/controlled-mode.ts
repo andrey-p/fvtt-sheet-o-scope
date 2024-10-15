@@ -1,3 +1,5 @@
+import { ControlledMode } from '../enums';
+
 const config: SettingConfig<string> = {
   namespace: 'sheet-o-scope',
   key: 'controlledMode',
@@ -7,8 +9,8 @@ const config: SettingConfig<string> = {
   config: true,
   type: String,
   choices: {
-    'controlled': 'SHEET-O-SCOPE.controlledModeControlled',
-    'uncontrolled': 'SHEET-O-SCOPE.controlledModeUncontrolled'
+    [ControlledMode.Controlled]: 'SHEET-O-SCOPE.controlledModeControlled',
+    [ControlledMode.Uncontrolled]: 'SHEET-O-SCOPE.controlledModeUncontrolled'
   },
   default: 'controlled'
 };

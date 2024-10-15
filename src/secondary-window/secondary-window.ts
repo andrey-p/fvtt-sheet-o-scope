@@ -1,7 +1,13 @@
 import { getEntitySheet } from '../utils/foundry';
 import { getNextOpenableSheets } from '../sheet-persistence';
 
-import { EntityType, SocketAction, LogType } from '../enums';
+import {
+  EntityType,
+  SocketAction,
+  LogType,
+  ControlledMode,
+  StickyMode
+} from '../enums';
 
 import SocketHandler from '../socket-handler';
 import LayoutGenerator from './layout-generator';
@@ -143,7 +149,7 @@ class SecondaryWindow {
     const controlledModeSetting = this.#settings.get('controlledMode');
 
     // if the user opted to position everything themselves, let them
-    if (controlledModeSetting === 'uncontrolled') {
+    if (controlledModeSetting === ControlledMode.Uncontrolled) {
       return;
     }
 
@@ -219,7 +225,7 @@ class SecondaryWindow {
 
       // if controlled mode is on, individual sheets
       // cannot be resized manually - the only way is via the window
-      if (this.#settings.get('controlledMode') === 'controlled') {
+      if (this.#settings.get('controlledMode') === ControlledMode.Controlled) {
         options.resizable = false;
       }
 
@@ -292,7 +298,7 @@ class SecondaryWindow {
   #modifySheet(_sheet: DocumentSheet, elems: Element[]): void {
     // if controlled mode is on, the sheets will not be repositionable by the user
     // this class adds a few changes that make this clearer
-    if (this.#settings.get('controlledMode') === 'controlled') {
+    if (this.#settings.get('controlledMode') === ControlledMode.Controlled) {
       elems[0].classList.add('controlled-sheet');
     }
   }
@@ -320,7 +326,10 @@ class SecondaryWindow {
     // the secondary window will remain empty
     const stickyModeSetting = this.#settings.get('stickyMode');
 
-    if (!this.#visibleSheets.length && stickyModeSetting === 'normal') {
+    if (
+      !this.#visibleSheets.length &&
+      stickyModeSetting === StickyMode.Normal
+    ) {
       window.close();
     } else {
       this.#relayoutSheets();
