@@ -11,7 +11,7 @@ import BlockUnnecessaryNotificationsShim from './shims/block-unnecessary-notific
 import BlockUnnecessaryUiShim from './shims/block-unnecessary-ui';
 import DisableCanvasShim from './shims/disable-canvas';
 
-import { registerSettings } from '../settings/settings';
+import Settings from '../settings';
 
 const isDev = import.meta.env.MODE === 'dev';
 
@@ -24,6 +24,7 @@ const shims = [
 class SecondaryWindow {
   #socketHandler?: SocketHandler;
   #layoutGenerator: LayoutGenerator;
+  #settings: Settings;
 
   #isRenderedInPopup: boolean;
   #relayoutInProgress: boolean;
@@ -31,6 +32,8 @@ class SecondaryWindow {
 
   constructor() {
     this.#visibleSheets = [];
+
+    this.#settings = new Settings();
 
     // it's possible that this was opened from Foundry running in Electron
     // in which case it's opened as a large-size browser tab with full browser chrome, not a popup window
@@ -88,7 +91,7 @@ class SecondaryWindow {
       shim.run();
     });
 
-    await registerSettings();
+    await this.#settings.registerSettings();
   }
 
   async #ready(): Promise<void> {

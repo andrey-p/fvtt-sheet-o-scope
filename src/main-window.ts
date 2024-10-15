@@ -7,11 +7,12 @@ import { EntityType, SocketAction, LogType } from './enums';
 import SocketHandler from './socket-handler';
 import DetachButton from './ui/detach-button';
 
-import { registerSettings } from './settings/settings';
+import Settings from './settings';
 
 class MainWindow extends EventTarget {
   #socketHandler?: SocketHandler;
   #waitingOnFirstPingBack?: boolean;
+  #settings: Settings;
 
   constructor() {
     super();
@@ -19,6 +20,8 @@ class MainWindow extends EventTarget {
     this.#waitingOnFirstPingBack = false;
 
     Hooks.once('ready', this.#ready.bind(this));
+
+    this.#settings = new Settings();
   }
 
   async #ready(): Promise<void> {
@@ -54,7 +57,7 @@ class MainWindow extends EventTarget {
       this.#onMessageReceived.bind(this) as EventListener
     );
 
-    await registerSettings();
+    await this.#settings.registerSettings();
   }
 
   #onMessageReceived(event: SocketMessageEvent): void {
