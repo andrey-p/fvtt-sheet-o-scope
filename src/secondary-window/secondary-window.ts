@@ -314,7 +314,11 @@ class SecondaryWindow {
     sheet.close();
 
     // if this was the last visible sheet, close the secondary window
-    if (!this.#visibleSheets.length) {
+    // unless the sticky mode setting has been changed, in which case
+    // the secondary window will remain empty
+    const stickyModeSetting = this.#settings.get('stickyMode');
+
+    if (!this.#visibleSheets.length && stickyModeSetting === 'normal') {
       window.close();
     } else {
       this.#relayoutSheets();
