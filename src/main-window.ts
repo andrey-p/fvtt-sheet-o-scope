@@ -18,10 +18,10 @@ class MainWindow extends EventTarget {
 
     this.#waitingOnFirstPingBack = false;
 
-    Hooks.once('ready', this.#initialize.bind(this));
+    Hooks.once('ready', this.#ready.bind(this));
   }
 
-  async #initialize(): Promise<void> {
+  async #ready(): Promise<void> {
     const game = getGame();
 
     // lib-wrapper is needed to patch into Foundry code -
