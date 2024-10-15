@@ -5,6 +5,11 @@ This is a [Foundry VTT](https://foundryvtt.com/) module for looking at Foundry s
 
 Sheet-o-scope allows for various types of sheets to be detached from the main Foundry window, and sent to a separate popup that you can move to a second monitor. This leaves your main Foundry screen nice and decluttered - extra handy if you're a GM running a complicated encounter!
 
+A longer term goal is for it to be a generic way of viewing sheets on any secondary window (e.g. in-person games where the scene is viewed on a large monitor, and players can look at their own character sheets on mobile devices).
+
+Features
+---
+
 Currently, the following types of sheets can be detached:
 
 - actor sheets (that is: character sheets, NPC sheets, etc)
@@ -13,7 +18,22 @@ Currently, the following types of sheets can be detached:
 
 If you want any other types supported, drop an issue in the tracker.
 
-A longer term goal is for it to be a generic way of viewing sheets on any secondary window (e.g. in-person games where the scene is viewed on a large monitor, and players can look at their own character sheets on mobile devices).
+### Settings
+
+There's a couple of settings to tweak the behaviour of Sheet-o-scope.
+
+#### Controlled / uncontrolled mode
+
+By default, Sheet-o-scope attempts to dynamically resize the popup window it opens depending on how many sheets are currently open.
+
+If you find this behaviour annoying, you can disable it by setting Sheet-o-scope to 'uncontrolled mode'.
+
+### Sticky mode
+
+By default, Sheet-o-scope closes the secondary window if the last sheet on display is closed.
+
+You may find this annoying if you're GMing and interested in keeping the window open throughout the session - you can keep it open even if there's no sheets left by enabling 'sticky mode'.
+
 
 Installing
 ---
