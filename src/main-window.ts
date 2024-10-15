@@ -91,7 +91,6 @@ class MainWindow extends EventTarget {
   }
 
   async #detachSheet(type: EntityType, sheet: DocumentSheet): Promise<void> {
-    const { width, height } = sheet.options;
     const id = sheet.document.id;
 
     if (!id) {
@@ -129,6 +128,25 @@ class MainWindow extends EventTarget {
       //
       // either way, go ahead and open it
       this.#waitingOnFirstPingBack = true;
+
+      let { width, height } = sheet.options;
+
+      // if width / height are undefined, give them some nominal dimensions
+      if (!width) {
+        width = 600;
+      }
+      // note: height can also have a string value ('auto')
+      if (typeof height === 'string' || !height) {
+        height = 700;
+      }
+
+      // uncontrolled mode makes the secondary window more like a
+      // freeform container for users to position their sheets as they wish
+      // so give them some extra initial space, to drive the point across
+      if (this.#settings.get('controlledMode') === 'uncontrolled') {
+        width += 100;
+        height += 100;
+      }
 
       window.open(
         `/game?sheetView=1`,
