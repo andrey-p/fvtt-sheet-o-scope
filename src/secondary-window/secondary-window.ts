@@ -26,7 +26,6 @@ class SecondaryWindow {
   #layoutGenerator: LayoutGenerator;
   #settings: Settings;
 
-  #isRenderedInPopup: boolean;
   #relayoutInProgress: boolean;
   #visibleSheets: FormApplication[];
 
@@ -34,12 +33,6 @@ class SecondaryWindow {
     this.#visibleSheets = [];
 
     this.#settings = new Settings();
-
-    // it's possible that this was opened from Foundry running in Electron
-    // in which case it's opened as a large-size browser tab with full browser chrome, not a popup window
-    // and a few of the special tweaks we want to do are unnecessary
-    this.#isRenderedInPopup =
-      !!window.opener && window.name.includes('sheet-o-scope');
 
     this.#layoutGenerator = new LayoutGenerator(
       { width: window.innerWidth, height: window.innerHeight },
@@ -147,6 +140,13 @@ class SecondaryWindow {
   }
 
   async #relayoutSheets(): Promise<void> {
+    const controlledModeSetting = this.#settings.get('controlledMode');
+
+    // if the user opted to position everything themselves, let them
+    if (controlledModeSetting === 'uncontrolled') {
+      return;
+    }
+
     const layout = this.#layoutGenerator.getLayout(this.#visibleSheets);
 
     this.#log(LogType.Log, 'starting relayout...');
@@ -217,9 +217,9 @@ class SecondaryWindow {
         options.height = thisSheetLayout.height;
       }
 
-      // if this view is actually showing in a popup,
-      // resizing it is done via the window
-      if (this.#isRenderedInPopup) {
+      // if controlled mode is on, individual sheets
+      // cannot be resized manually - the only way is via the window
+      if (this.#settings.get('controlledMode') === 'controlled') {
         options.resizable = false;
       }
 
@@ -290,8 +290,10 @@ class SecondaryWindow {
 
   // tweak the sheet itself
   #modifySheet(_sheet: DocumentSheet, elems: Element[]): void {
-    if (this.#isRenderedInPopup) {
-      elems[0].classList.add('secondary-window-sheet');
+    // if controlled mode is on, the sheets will not be repositionable by the user
+    // this class adds a few changes that make this clearer
+    if (this.#settings.get('controlledMode') === 'controlled') {
+      elems[0].classList.add('controlled-sheet');
     }
   }
 

@@ -1,6 +1,6 @@
 /* small tweaks for the secondary window */
 .sheet-o-scope-secondary {
-  & .window-app.secondary-window-sheet {
+  & .window-app.controlled-sheet {
 
     /* disable transparency and draggable cursor on header */
     & .window-header {
