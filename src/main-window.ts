@@ -2,24 +2,27 @@ import { log } from './utils/logger';
 import { getGame, getEntitySheet, l } from './utils/foundry';
 import { addOpenableSheet } from './sheet-persistence';
 
-import { EntityType, SocketAction, LogType } from './enums';
+import { EntityType, SocketAction, LogType, ControlledMode } from './enums';
 
-import SocketHandler from './socket-handler.ts';
-import DetachButton from './ui/detach-button.ts';
+import SocketHandler from './socket-handler';
+import DetachButton from './ui/detach-button';
 
-class MainWindow extends EventTarget {
+import Settings from './settings';
+
+class MainWindow {
   #socketHandler?: SocketHandler;
   #waitingOnFirstPingBack?: boolean;
+  #settings: Settings;
 
   constructor() {
-    super();
-
     this.#waitingOnFirstPingBack = false;
 
-    Hooks.once('ready', this.#initialize.bind(this));
+    Hooks.once('ready', this.#ready.bind(this));
+
+    this.#settings = new Settings();
   }
 
-  #initialize(): void {
+  async #ready(): Promise<void> {
     const game = getGame();
 
     // lib-wrapper is needed to patch into Foundry code -
@@ -51,6 +54,8 @@ class MainWindow extends EventTarget {
       'message',
       this.#onMessageReceived.bind(this) as EventListener
     );
+
+    await this.#settings.registerSettings();
   }
 
   #onMessageReceived(event: SocketMessageEvent): void {
@@ -84,7 +89,6 @@ class MainWindow extends EventTarget {
   }
 
   async #detachSheet(type: EntityType, sheet: DocumentSheet): Promise<void> {
-    const { width, height } = sheet.options;
     const id = sheet.document.id;
 
     if (!id) {
@@ -122,6 +126,27 @@ class MainWindow extends EventTarget {
       //
       // either way, go ahead and open it
       this.#waitingOnFirstPingBack = true;
+
+      let { width, height } = sheet.options;
+
+      // if width / height are undefined, give them some nominal dimensions
+      if (!width) {
+        width = 600;
+      }
+      // note: height can also have a string value ('auto')
+      if (typeof height === 'string' || !height) {
+        height = 700;
+      }
+
+      // uncontrolled mode makes the secondary window more like a
+      // freeform container for users to position their sheets as they wish
+      // so give them some extra initial space, to drive the point across
+      if (
+        this.#settings.get('controlledMode') === ControlledMode.Uncontrolled
+      ) {
+        width += 100;
+        height += 100;
+      }
 
       window.open(
         `/game?sheetView=1`,

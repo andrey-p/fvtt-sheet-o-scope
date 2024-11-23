@@ -1,7 +1,13 @@
 import { getEntitySheet } from '../utils/foundry';
 import { getNextOpenableSheets } from '../sheet-persistence';
 
-import { EntityType, SocketAction, LogType } from '../enums';
+import {
+  EntityType,
+  SocketAction,
+  LogType,
+  ControlledMode,
+  StickyMode
+} from '../enums';
 
 import SocketHandler from '../socket-handler';
 import LayoutGenerator from './layout-generator';
@@ -10,6 +16,8 @@ import ReattachButton from '../ui/reattach-button';
 import BlockUnnecessaryNotificationsShim from './shims/block-unnecessary-notifications';
 import BlockUnnecessaryUiShim from './shims/block-unnecessary-ui';
 import DisableCanvasShim from './shims/disable-canvas';
+
+import Settings from '../settings';
 
 const isDev = import.meta.env.MODE === 'dev';
 
@@ -22,19 +30,15 @@ const shims = [
 class SecondaryWindow {
   #socketHandler?: SocketHandler;
   #layoutGenerator: LayoutGenerator;
+  #settings: Settings;
 
-  #isRenderedInPopup: boolean;
   #relayoutInProgress: boolean;
   #visibleSheets: FormApplication[];
 
   constructor() {
     this.#visibleSheets = [];
 
-    // it's possible that this was opened from Foundry running in Electron
-    // in which case it's opened as a large-size browser tab with full browser chrome, not a popup window
-    // and a few of the special tweaks we want to do are unnecessary
-    this.#isRenderedInPopup =
-      !!window.opener && window.name.includes('sheet-o-scope');
+    this.#settings = new Settings();
 
     this.#layoutGenerator = new LayoutGenerator(
       { width: window.innerWidth, height: window.innerHeight },
@@ -78,13 +82,15 @@ class SecondaryWindow {
     }
   }
 
-  #initialize(): void {
+  async #initialize(): Promise<void> {
     // mild hacks that make the UX a bit nicer
     // that need to execute as early as possible
     shims.forEach((Shim) => {
       const shim = new Shim();
       shim.run();
     });
+
+    await this.#settings.registerSettings();
   }
 
   async #ready(): Promise<void> {
@@ -140,6 +146,13 @@ class SecondaryWindow {
   }
 
   async #relayoutSheets(): Promise<void> {
+    const controlledModeSetting = this.#settings.get('controlledMode');
+
+    // if the user opted to position everything themselves, let them
+    if (controlledModeSetting === ControlledMode.Uncontrolled) {
+      return;
+    }
+
     const layout = this.#layoutGenerator.getLayout(this.#visibleSheets);
 
     this.#log(LogType.Log, 'starting relayout...');
@@ -210,9 +223,9 @@ class SecondaryWindow {
         options.height = thisSheetLayout.height;
       }
 
-      // if this view is actually showing in a popup,
-      // resizing it is done via the window
-      if (this.#isRenderedInPopup) {
+      // if controlled mode is on, individual sheets
+      // cannot be resized manually - the only way is via the window
+      if (this.#settings.get('controlledMode') === ControlledMode.Controlled) {
         options.resizable = false;
       }
 
@@ -283,8 +296,10 @@ class SecondaryWindow {
 
   // tweak the sheet itself
   #modifySheet(_sheet: DocumentSheet, elems: Element[]): void {
-    if (this.#isRenderedInPopup) {
-      elems[0].classList.add('secondary-window-sheet');
+    // if controlled mode is on, the sheets will not be repositionable by the user
+    // this class adds a few changes that make this clearer
+    if (this.#settings.get('controlledMode') === ControlledMode.Controlled) {
+      elems[0].classList.add('controlled-sheet');
     }
   }
 
@@ -307,7 +322,14 @@ class SecondaryWindow {
     sheet.close();
 
     // if this was the last visible sheet, close the secondary window
-    if (!this.#visibleSheets.length) {
+    // unless the sticky mode setting has been changed, in which case
+    // the secondary window will remain empty
+    const stickyModeSetting = this.#settings.get('stickyMode');
+
+    if (
+      !this.#visibleSheets.length &&
+      stickyModeSetting === StickyMode.Normal
+    ) {
       window.close();
     } else {
       this.#relayoutSheets();
